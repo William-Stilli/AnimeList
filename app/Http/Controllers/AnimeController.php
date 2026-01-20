@@ -12,6 +12,7 @@ class AnimeController extends Controller
         $validated = $request->validate([
             'mal_id' => 'required|integer',
             'title' => 'required|string',
+            'title_english' => 'nullable|string',
             'image_url' => 'nullable|string',
             'episodes' => 'nullable|integer',
         ]);
@@ -20,6 +21,7 @@ class AnimeController extends Controller
             ['mal_id' => $validated['mal_id']],
             [
                 'title' => $validated['title'],
+                'title_english' => $validated['title_english'] ?? null,
                 'image_url' => $validated['image_url'],
                 'episodes' => $validated['episodes'] ?? null,
             ]

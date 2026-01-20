@@ -2,6 +2,10 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import AppLayout from '@/layouts/AppLayout.vue';
+import AnimeToast from '@/components/AnimeToast.vue';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 const query = ref('');
 const results = ref([]);
@@ -28,17 +32,31 @@ const addToLibrary = async (anime) => {
         const payload = {
             mal_id: anime.mal_id,
             title: anime.title,
+            title_english: anime.title_english,
             image_url: anime.images.jpg.image_url,
             episodes: anime.episodes
         };
 
         const response = await axios.post('/animes', payload);
 
-        alert(anime.title + " ajouté à ta collection.");
+        toast.success(
+            {
+                component: AnimeToast,
+                props: {
+                    title: anime.title,
+                    image: anime.images.jpg.image_url,
+                    message: `L'anime ${anime.title} a été ajouté à votre liste`
+                },
+            },
+            {
+                timeout: 3500,
+                icon: false,
+            }
+        );
 
     } catch (error) {
         console.error(error);
-        alert("Erreur : Impossible d'ajouter cet animé");
+        toast.error("Erreur : Impossible d'ajouter cet animé");
     }
 };
 </script>
@@ -63,7 +81,10 @@ const addToLibrary = async (anime) => {
 
                     <div class="flex flex-col justify-between flex-1">
                         <div>
-                            <h3 class="font-bold text-lg leading-tight">{{ anime.title }}</h3>
+                            <h3 class="font-bold text-lg leading-tight">
+                                {{ anime.title_english || anime.title }}
+                            </h3>
+                            <p v-if="anime.title_english" class="text-xs text-gray-400">{{ anime.title }}</p>
                             <p class="text-sm text-gray-500 mt-1">{{ anime.type }} - {{ anime.year || '?' }}</p>
                         </div>
 

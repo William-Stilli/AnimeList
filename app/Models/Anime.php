@@ -14,4 +14,10 @@ class Anime extends Model
             ->withPivot('status', 'score', 'progress')
             ->withTimestamps();
     }
+
+    public function getDisplayTitleAttribute()
+    {
+        return $this->title_english ?: $this->title;
+    }
+    protected $appends = ['display_title'];
 }

@@ -27,7 +27,7 @@ createInertiaApp({
             .use(Toast, {
                 position: "top-center",
                 timeout: 3000,
-                closeOnClick: true,
+                closeOnClick: false,
                 pauseOnFocusLoss: true,
                 pauseOnHover: true,
                 draggable: true,
