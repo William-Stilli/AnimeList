@@ -1,0 +1,235 @@
+<script setup>
+import AppLayout from '@/layouts/AppLayout.vue';
+import { Head } from '@inertiajs/vue3';
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
+
+
+
+const animes = ref([]);
+const currentTab = ref('all');
+const tabs = [
+    { key: 'all', label: 'Tout' },
+    { key: 'watching', label: 'En cours' },
+    { key: 'completed', label: 'Terminé' },
+    { key: 'plan_to_watch', label: 'À voir' },
+    { key: 'dropped', label: 'Abandonné' }
+];
+
+const isModalOpen = ref(false);
+const editingAnime = ref(null);
+const form = ref({
+    status: '',
+    progress: 0,
+    score: 0
+});
+
+onMounted(async () => {
+    refreshLibrary();
+});
+
+const refreshLibrary = async () => {
+    try {
+        const response = await axios.get('/my-animes');
+        animes.value = response.data;
+    } catch (error) {
+        console.error("Erreur:", error);
+    }
+};
+
+const filteredAnimes = computed(() => {
+    if (currentTab.value === 'all') return animes.value;
+    return animes.value.filter(anime => anime.pivot.status === currentTab.value);
+});
+
+const statusLabel = (status) => {
+    const map = { watching: 'En cours', completed: 'Fini', plan_to_watch: 'À voir', dropped: 'Stop' };
+    return map[status] || status;
+};
+
+const openEditModal = (anime) => {
+    editingAnime.value = anime;
+    form.value = {
+        status: anime.pivot.status,
+        progress: anime.pivot.progress,
+        score: anime.pivot.score
+    };
+    isModalOpen.value = true;
+};
+
+const closeModal = () => {
+    isModalOpen.value = false;
+    editingAnime.value = null;
+};
+
+const saveChanges = async () => {
+    if (!editingAnime.value) return;
+
+    try {
+        await axios.put(`/animes/${editingAnime.value.id}`, form.value);
+
+        const index = animes.value.findIndex(a => a.id === editingAnime.value.id);
+        if (index !== -1) {
+            animes.value[index].pivot.status = form.value.status;
+            animes.value[index].pivot.progress = form.value.progress;
+            animes.value[index].pivot.score = form.value.score;
+        }
+
+        closeModal();
+    } catch (error) {
+        toast.error("Erreur lors de la sauvegarde !");
+        console.error(error);
+    }
+};
+
+const deleteAnime = async () => {
+    if (!editingAnime.value) return;
+
+    if (!confirm(`Confirmé la suppression de "${editingAnime.value.title}" de la liste`)) {
+        return;
+    }
+
+    try {
+        await axios.delete(`/animes/${editingAnime.value.id}`);
+
+        animes.value = animes.value.filter(a => a.id !== editingAnime.value.id);
+
+        toast.warning("Animé supprimé!")
+
+        closeModal();
+    } catch (error) {
+        console.error("Impossible de supprimer :", error);
+        toast.error("Erreur lors de la suppression.");
+    }
+}
+</script>
+
+<template>
+
+    <Head title="Ma Bibliothèque" />
+
+    <AppLayout>
+        <template #header>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Ma Bibliothèque</h2>
+        </template>
+
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-gray-900">
+
+                        <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
+                            <button v-for="tab in tabs" :key="tab.key" @click="currentTab = tab.key"
+                                :class="['px-4 py-2 rounded-full font-bold text-sm transition', currentTab === tab.key ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
+                                {{ tab.label }}
+                            </button>
+                        </div>
+
+                        <div v-if="filteredAnimes.length > 0"
+                            class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                            <div v-for="anime in filteredAnimes" :key="anime.id" @click="openEditModal(anime)"
+                                class="cursor-pointer group border rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col h-full bg-white relative">
+                                <div class="h-48 overflow-hidden bg-gray-200 relative">
+                                    <img :src="anime.image_url" :alt="anime.title"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                    <div
+                                        class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center">
+                                        <span
+                                            class="text-white opacity-0 group-hover:opacity-100 font-bold bg-black/50 px-3 py-1 rounded-full text-sm">Modifier</span>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 flex flex-col flex-grow justify-between">
+                                    <h3 class="font-bold truncate text-sm mb-2">{{ anime.title }}</h3>
+                                    <div class="flex justify-between items-center mt-auto">
+                                        <span
+                                            class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 font-medium border">{{
+                                                statusLabel(anime.pivot.status) }}</span>
+                                        <span class="text-xs text-gray-500 font-mono">Ep. {{ anime.pivot.progress
+                                        }}</span>
+                                    </div>
+                                    <div v-if="anime.pivot.score" class="text-xs text-yellow-600 font-bold mt-1">★ {{
+                                        anime.pivot.score }}/10</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else class="text-center py-10 text-gray-500 italic">
+                            Rien à voir ici. Va ajouter des animés !
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="isModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm">
+            <div
+                class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-gray-100">
+
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="font-bold text-lg text-gray-800 truncate pr-4">{{ editingAnime?.title }}</h3>
+                    <button @click="closeModal"
+                        class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
+                </div>
+
+                <div class="p-6 space-y-5">
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Statut</label>
+                        <select v-model="form.status"
+                            class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5">
+                            <option value="watching" class="text-gray-900">En cours de visionnage</option>
+                            <option value="completed" class="text-gray-900">Terminé</option>
+                            <option value="plan_to_watch" class="text-gray-900">À voir plus tard</option>
+                            <option value="dropped" class="text-gray-900">Abandonné</option>
+                        </select>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Épisodes vus</label>
+                            <div class="flex items-center">
+                                <input type="number" v-model="form.progress" min="0"
+                                    class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5">
+                                <span class="ml-2 text-gray-500 text-sm font-mono whitespace-nowrap"
+                                    v-if="editingAnime?.episodes">/ {{ editingAnime.episodes }}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex-1">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Note / 10</label>
+                            <input type="number" v-model="form.score" min="0" max="10"
+                                class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-t border-gray-100">
+
+                    <button @click="deleteAnime"
+                        class="text-red-600 hover:text-red-800 text-sm font-bold hover:underline transition">
+                        Supprimer
+                    </button>
+
+                    <div class="flex gap-3">
+                        <button @click="closeModal"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            Annuler
+                        </button>
+                        <button @click="saveChanges"
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md transition hover:shadow-lg">
+                            Sauvegarder
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </AppLayout>
+</template>
