@@ -2,11 +2,13 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { ref, computed, onMounted } from 'vue';
-import axios from 'axios';
+import axios, { spread } from 'axios';
 import { useToast } from 'vue-toastification';
-
+import { useAutoAnimate } from '@formkit/auto-animate/vue'
 import AnimeToast from '@/components/AnimeToast.vue';
+import confetti from 'canvas-confetti';
 
+const [parent] = useAutoAnimate()
 const toast = useToast();
 
 const searchQuery = ref('');
@@ -92,6 +94,14 @@ const saveChanges = async () => {
             animes.value[index].pivot.score = form.value.score;
         }
 
+        if (form.value.status === 'completed') {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 }
+            })
+        }
+
         toast.success(
             {
                 component: AnimeToast,
@@ -171,7 +181,7 @@ const deleteAnime = async () => {
                             </div>
                         </div>
 
-                        <div v-if="filteredAnimes.length > 0"
+                        <div v-if="filteredAnimes.length > 0" ref="parent"
                             class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                             <div v-for="anime in filteredAnimes" :key="anime.id" @click="openEditModal(anime)"
                                 class="cursor-pointer group border rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col h-full bg-white relative">
@@ -192,10 +202,11 @@ const deleteAnime = async () => {
                                             class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 font-medium border">{{
                                                 statusLabel(anime.pivot.status) }}</span>
                                         <span class="text-xs text-gray-500 font-mono">Ep. {{ anime.pivot.progress
-                                        }}</span>
+                                            }}</span>
                                     </div>
-                                    <div v-if="anime.pivot.score" class="text-xs text-yellow-600 font-bold mt-1">★ {{
-                                        anime.pivot.score }}/10</div>
+                                    <div v-if="anime.pivot.score" class="text-xs text-yellow-600 font-bold mt-1">★
+                                        {{
+                                            anime.pivot.score }}/10</div>
                                 </div>
                             </div>
                         </div>

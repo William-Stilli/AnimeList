@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Anime;
+use App\Models\Genre;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,11 +28,22 @@ class AnimeController extends Controller
             ]
         );
 
+        if ($request->has('genres')) {
+            foreach ($request->input('genres') as $genreData) {
+                $genre = Genre::firstOrCreate(
+                    ['mal_id' => $genreData['mal_id']],
+                    ['name' => $genreData['name']],
+                );
+
+                $anime->genres()->syncWithoutDetaching($genre->id);
+            }
+        }
+
         $request->user()->animes()->syncWithoutDetaching([
             $anime->id => ['status' => 'plan_to_watch']
         ]);
 
-        return response()->json(['message' => 'Animé ajouté avec succès !']);
+        return response()->json(['message' => 'Animé et genres ajouté avec succès !']);
     }
 
     public function index(Request $request)
@@ -64,5 +76,23 @@ class AnimeController extends Controller
         $request->user()->animes()->detach($anime->id);
 
         return response()->json(['message' => 'Animé supprimé de la liste']);
+    }
+
+    public function manualRanking(Request $request)
+    {
+        return $request->user()->animes()->wherePivot('status', 'completed')->orderByPivot('rank', 'asc')->orderByPivot('updated_at', 'desc')->get();
+    }
+
+    public function reorder(Request $request)
+    {
+        $orderedIds = $request->input('animes');
+
+        foreach ($orderedIds as $index => $animeId) {
+            $request->user()->animes()->updateExistingPivot($animeId, [
+                'rank' => $index + 1
+            ]);
+        }
+
+        return response()->json(['message' => 'Ordre sauvegardé']);
     }
 }

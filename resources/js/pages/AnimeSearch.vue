@@ -28,13 +28,18 @@ const searchAnime = async () => {
 
 const addToLibrary = async (anime) => {
     try {
+        const allGenres = [
+            ...(anime.genres || []),
+            ...(anime.demographics || [])
+        ]
 
         const payload = {
             mal_id: anime.mal_id,
             title: anime.title,
             title_english: anime.title_english,
             image_url: anime.images.jpg.image_url,
-            episodes: anime.episodes
+            episodes: anime.episodes,
+            genres: allGenres
         };
 
         const response = await axios.post('/animes', payload);

@@ -35,6 +35,16 @@ const mainNavItems: NavItem[] = [
         href: route('anime.search'),
         icon: LayoutGrid,
     },
+    {
+        title: 'Ranking',
+        href: route('anime.tier-list'),
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Stats',
+        href: route('stats'),
+        icon: LayoutGrid,
+    }
 ];
 
 const footerNavItems: NavItem[] = [

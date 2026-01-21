@@ -20,4 +20,9 @@ class Anime extends Model
         return $this->title_english ?: $this->title;
     }
     protected $appends = ['display_title'];
+
+    public function genres()
+    {
+        return $this->belongsToMany(Genre::class, 'anime_genre');
+    }
 }

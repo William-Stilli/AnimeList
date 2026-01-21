@@ -1,9 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnimeController;
+use App\Http\Controllers\StatsController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -29,6 +30,15 @@ Route::middleware(['auth'])->group(function () {
     })->name('library');
 
     Route::get('/my-animes', [AnimeController::class, 'index']);
+
+    Route::get('/api/manual-ranking', [AnimeController::class, 'manualRanking']);
+    Route::post('/api/reorder', [AnimeController::class, 'reorder']);
+
+    Route::get('/tier-list', function () {
+        return Inertia::render('TierList');
+    })->name('anime.tier-list');
+
+    Route::get('/stats', [StatsController::class, 'index'])->name('stats');
 });
 
 require __DIR__ . '/settings.php';
