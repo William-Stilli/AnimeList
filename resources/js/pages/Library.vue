@@ -1,7 +1,7 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import axios, { spread } from 'axios';
 import { useToast } from 'vue-toastification';
 import { useAutoAnimate } from '@formkit/auto-animate/vue'
@@ -30,6 +30,9 @@ const form = ref({
     progress: 0,
     score: 0
 });
+
+const galleryImages = ref([]);
+const isLoadingGallery = ref(false);
 
 onMounted(async () => {
     refreshLibrary();
@@ -60,7 +63,7 @@ const statusLabel = (status) => {
     return map[status] || status;
 };
 
-const openEditModal = (anime) => {
+const openEditModal = async (anime) => {
     editingAnime.value = anime;
     form.value = {
         status: anime.pivot.status,
@@ -68,6 +71,27 @@ const openEditModal = (anime) => {
         score: anime.pivot.score
     };
     isModalOpen.value = true;
+
+    galleryImages.value = [];
+    isLoadingGallery.value = true;
+
+    if (!anime.mal_id) {
+        isLoadingGallery.value = false;
+        return;
+    }
+
+    try {
+        const url = `https://api.jikan.moe/v4/anime/${anime.mal_id}/pictures`;
+        const response = await axios.get(url);
+
+
+        galleryImages.value = response.data.data;
+
+    } catch (error) {
+        console.error("ERREUR APPEL API :", error);
+    } finally {
+        isLoadingGallery.value = false;
+    }
 };
 
 const closeModal = () => {
@@ -143,7 +167,27 @@ const deleteAnime = async () => {
         console.error("Impossible de supprimer :", error);
         toast.error("Erreur lors de la suppression.");
     }
-}
+};
+
+const changeCover = async (newUrl) => {
+    if (!confirm("Veux-tu utiliser cette image comme couverture principale ?")) return;
+    editingAnime.value.image_url = newUrl;
+    const index = animes.value.findIndex(a => a.id === editingAnime.value.id);
+    if (index !== -1) {
+        animes.value[index].image_url = newUrl;
+    }
+
+    try {
+        await axios.put(`/animes/${editingAnime.value.id}`, {
+            ...form.value,
+            image_url: newUrl
+        });
+        toast.success("Nouvelle couverture appliquée !");
+    } catch (error) {
+        console.error("Erreur lors du changement d'image", error);
+        toast.error("Erreur lors du changement d'image");
+    }
+};
 </script>
 
 <template>
@@ -231,6 +275,28 @@ const deleteAnime = async () => {
                 </div>
 
                 <div class="p-6 space-y-5">
+                    <div>
+                        <h4 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            Galerie Officielle
+                            <span v-if="isLoadingGallery"
+                                class="text-xs font-normal text-gray-400 animate-pulse">(Chargement...)</span>
+                        </h4>
+
+                        <div v-if="galleryImages.length > 0"
+                            class="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                            <div v-for="(img, index) in galleryImages" :key="index"
+                                class="relative group cursor-pointer" @click="changeCover(img.jpg.image_url)"> <img
+                                    :src="img.jpg.image_url"
+                                    class="w-full h-24 object-cover rounded-md border border-gray-200 hover:scale-105 transition duration-300">
+                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition rounded-md">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else-if="!isLoadingGallery" class="text-sm text-gray-400 italic">
+                            Pas d'images supplémentaires trouvées.
+                        </div>
+                    </div>
 
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Statut</label>
@@ -250,7 +316,8 @@ const deleteAnime = async () => {
                                 <input type="number" v-model="form.progress" min="0"
                                     class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5">
                                 <span class="ml-2 text-gray-500 text-sm font-mono whitespace-nowrap"
-                                    v-if="editingAnime?.episodes">/ {{ editingAnime.episodes }}</span>
+                                    v-if="editingAnime?.episodes">/
+                                    {{ editingAnime.episodes }}</span>
                             </div>
                         </div>
 

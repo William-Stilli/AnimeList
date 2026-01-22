@@ -60,6 +60,7 @@ class AnimeController extends Controller
             'status' => 'required|in:watching,completed,plan_to_watch,dropped',
             'progress' => 'integer|min:0',
             'score' => 'nullable|integer|min:0|max:10',
+            'image_url' => 'nullable|string'
         ]);
 
         $request->user()->animes()->updateExistingPivot($anime->id, [
@@ -67,6 +68,10 @@ class AnimeController extends Controller
             'progress' => $validated['progress'],
             'score' => $validated['score'],
         ]);
+
+        if ($request->has('image_url')) {
+            $anime->update(['image_url' => $validated['image_url']]);
+        }
 
         return response()->json(['message' => 'Mise à jour réussie !']);
     }

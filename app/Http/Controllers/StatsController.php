@@ -31,7 +31,6 @@ class StatsController extends Controller
             ->select('genres.name', DB::raw('count(*) as total'))
             ->groupBy('genres.name')
             ->orderBy('total', 'desc')
-            ->limit(8)
             ->get();
 
         return Inertia::render('Stats', [

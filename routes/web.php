@@ -21,6 +21,7 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('AnimeSearch');
     })->name('anime.search');
 
+    Route::get('/animes/{anime}', [App\Http\Controllers\AnimeController::class, 'show'])->name('animes.show');
     Route::post('/animes', [AnimeController::class, 'store'])->name('animes.store');
     Route::put('/animes/{anime}', [AnimeController::class, 'update'])->name('animes.update');
     Route::delete('/animes/{anime}', [AnimeController::class, 'destroy'])->name('anime.destroy');
@@ -39,6 +40,8 @@ Route::middleware(['auth'])->group(function () {
     })->name('anime.tier-list');
 
     Route::get('/stats', [StatsController::class, 'index'])->name('stats');
+
+
 });
 
 require __DIR__ . '/settings.php';

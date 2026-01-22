@@ -13,11 +13,9 @@ import {
     BarElement,
     CategoryScale,
     LinearScale,
-    RadialLinearScale
 } from 'chart.js';
-import { PolarArea } from 'vue-chartjs';
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement, BarElement, CategoryScale, LinearScale, RadialLinearScale);
+ChartJS.register(Title, Tooltip, Legend, ArcElement, BarElement, CategoryScale, LinearScale);
 
 const props = defineProps({
     statusData: Array,
@@ -85,15 +83,9 @@ const genreChartData = computed(() => {
     return {
         labels: props.genreData.map(d => d.name),
         datasets: [{
-            label: 'Genres favoris',
             data: props.genreData.map(d => d.total),
             backgroundColor: [
-                'rgba(255, 99, 132, 0.7)',
-                'rgba(54, 162, 235, 0.7)',
-                'rgba(255, 206, 86, 0.7)',
-                'rgba(75, 192, 192, 0.7)',
-                'rgba(153, 102, 255, 0.7)',
-                'rgba(255, 159, 64, 0.7)',
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#FFCD56', "#F4CBC6", "#C0A9B0", '#001514', '#FFA0FD'
             ],
             borderWidth: 1
         }]
@@ -102,8 +94,9 @@ const genreChartData = computed(() => {
 
 const genreOptions = {
     responsive: true,
-    scales: {
-        r: { ticks: { display: false } }
+    maintainAspectRatio: false,
+    plugins: {
+        legend: { position: 'right' }
     }
 };
 </script>
@@ -135,17 +128,18 @@ const genreOptions = {
                             <Bar :data="barData" :options="barOptions" />
                         </div>
                     </div>
+                </div>
 
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 md:col-span-2 lg:col-span-1">
-                        <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">Genres Favoris</h3>
-                        <div class="h-64 relative">
-                            <PolarArea :data="genreChartData" :options="genreOptions" />
-                        </div>
-                        <p v-if="genreData.length === 0" class="text-xs text-center text-gray-400 mt-4">
-                            (Données insuffisantes : Ajoute des nouveaux animés pour voir tes genres !)
-                        </p>
+                <div class="mt-8 bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 md:col-span-2 lg:col-span-1">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">Genres Favoris</h3>
+
+                    <div class="h-64 relative">
+                        <Pie :data="genreChartData" :options="genreOptions" />
                     </div>
 
+                    <p v-if="genreData.length === 0" class="text-xs text-center text-gray-400 mt-4">
+                        (Données insuffisantes : Ajoute des nouveaux animés pour voir tes genres !)
+                    </p>
                 </div>
 
                 <div class="mt-8 bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-center">
