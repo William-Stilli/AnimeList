@@ -86,6 +86,12 @@ class AnimeController extends Controller
         if (array_key_exists('rank', $validated))
             $pivotData['rank'] = $validated['rank'];
 
+        if (isset($validated['status']) && $validated['status'] === 'completed') {
+            if ($anime->episodes) {
+                $pivotData['progress'] = $anime->episodes;
+            }
+        }
+
         if (!empty($pivotData)) {
             $request->user()->animes()->updateExistingPivot($anime->id, $pivotData);
         }

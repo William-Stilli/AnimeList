@@ -31,6 +31,12 @@ const form = ref({
     score: 0
 });
 
+watch(() => form.value.status, (newStatus) => {
+    if (newStatus === 'completed' && editingAnime.value?.episodes) {
+        form.value.progress = editingAnime.value.episodes;
+    }
+});
+
 const galleryImages = ref([]);
 const isLoadingGallery = ref(false);
 
@@ -170,7 +176,6 @@ const deleteAnime = async () => {
 };
 
 const changeCover = async (newUrl) => {
-    if (!confirm("Veux-tu utiliser cette image comme couverture principale ?")) return;
     editingAnime.value.image_url = newUrl;
     const index = animes.value.findIndex(a => a.id === editingAnime.value.id);
     if (index !== -1) {
@@ -249,7 +254,7 @@ const changeCover = async (newUrl) => {
                                             class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 font-medium border">{{
                                                 statusLabel(anime.pivot.status) }}</span>
                                         <span class="text-xs text-gray-500 font-mono">Ep. {{ anime.pivot.progress
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div v-if="anime.pivot.score" class="text-xs text-yellow-600 font-bold mt-1">★
                                         {{

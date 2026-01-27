@@ -3,13 +3,14 @@
 namespace App\Jobs;
 
 use App\Models\Anime;
-use Illuminate\Bus\Queueable; // <--- C'était ça le problème (Bus au lieu de Foundation\Queue)
+use App\Models\Genre;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log; // <--- Pour espionner
+use Illuminate\Support\Facades\Log;
+use Illuminate\Bus\Queueable;
 
 class FetchAnimeData implements ShouldQueue
 {
@@ -41,6 +42,18 @@ class FetchAnimeData implements ShouldQueue
                     'season' => $data['season'] ?? null,
                     'year' => $data['year'] ?? null,
                 ]);
+
+                if (isset($data['genres'])) {
+                    $genreIds = [];
+                    foreach ($data['genres'] as $genreData) {
+                        $genre = Genre::firstOrCreate(
+                            ['mal_id' => $genreData['mal_id']],
+                            ['name' => $genreData['name']]
+                        );
+                        $genreIds[] = $genre->id;
+                    }
+                    $this->anime->genres()->sync($genreIds);
+                }
 
                 Log::info("JOB SUCCÈS : Données mises à jour pour " . $this->anime->title);
             } else {

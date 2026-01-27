@@ -35,7 +35,6 @@ const updateRank = async (node, rank) => {
     const anime = node.data.value;
     try {
         await axios.put(`/animes/${anime.id}`, { rank: rank });
-        console.log(`${anime.title} -> Rang ${rank ?? 'Aucun'}`);
     } catch (e) {
         console.error("Échec sauvegarde", e);
     }

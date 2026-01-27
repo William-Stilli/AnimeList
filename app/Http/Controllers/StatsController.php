@@ -28,6 +28,7 @@ class StatsController extends Controller
             ->join('animes', 'anime_genre.anime_id', '=', 'animes.id')
             ->join('anime_user', 'animes.id', '=', 'anime_user.anime_id')
             ->where('anime_user.user_id', $userId)
+            ->where('anime_user.status', 'completed')
             ->select('genres.name', DB::raw('count(*) as total'))
             ->groupBy('genres.name')
             ->orderBy('total', 'desc')
