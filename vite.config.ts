@@ -24,4 +24,13 @@ export default defineConfig({
             },
         }),
     ],
+    server: {
+        host: '0.0.0.0',
+        cors: {
+            origin: '*',
+        },
+        hmr: {
+            host: '157.26.120.168'
+        },
+    },
 });

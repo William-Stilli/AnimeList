@@ -6,6 +6,7 @@ use App\Models\Genre;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Jobs\FetchAnimeData;
 
 class AnimeController extends Controller
 {
@@ -27,8 +28,7 @@ class AnimeController extends Controller
         $validated = $request->validate([
             'mal_id' => 'required|integer',
             'title' => 'required|string',
-            'title_english' => 'nullable|string',
-            'image_url' => 'nullable|string',
+            'image_url' => 'required|string',
             'episodes' => 'nullable|integer',
         ]);
 
@@ -36,28 +36,25 @@ class AnimeController extends Controller
             ['mal_id' => $validated['mal_id']],
             [
                 'title' => $validated['title'],
-                'title_english' => $validated['title_english'] ?? null,
                 'image_url' => $validated['image_url'],
                 'episodes' => $validated['episodes'] ?? null,
             ]
         );
 
-        if ($request->has('genres')) {
-            foreach ($request->input('genres') as $genreData) {
-                $genre = Genre::firstOrCreate(
-                    ['mal_id' => $genreData['mal_id']],
-                    ['name' => $genreData['name']],
-                );
-
-                $anime->genres()->syncWithoutDetaching($genre->id);
-            }
+        if (!$request->user()->animes()->where('animes.id', $anime->id)->exists()) {
+            $request->user()->animes()->attach($anime->id, [
+                'status' => 'plan_to_watch',
+                'progress' => 0,
+                'score' => 0,
+                'rank' => null
+            ]);
+        } else {
+            return redirect()->back()->with('warning', 'Cet animé est déjà dans ta liste !');
         }
 
-        $request->user()->animes()->syncWithoutDetaching([
-            $anime->id => ['status' => 'plan_to_watch']
-        ]);
+        FetchAnimeData::dispatch($anime);
 
-        return response()->json(['message' => 'Animé et genres ajouté avec succès !']);
+        return redirect()->back()->with('success', 'Animé ajouté ! Les détails arrivent...');
     }
 
     public function index(Request $request)

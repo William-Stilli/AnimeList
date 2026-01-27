@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Models\Anime;
+use Illuminate\Bus\Queueable; // <--- C'était ça le problème (Bus au lieu de Foundation\Queue)
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log; // <--- Pour espionner
+
+class FetchAnimeData implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public $anime;
+
+    public function __construct(Anime $anime)
+    {
+        $this->anime = $anime;
+    }
+
+    public function handle(): void
+    {
+        Log::info("JOB DÉMARRÉ : Récupération pour l'ID " . $this->anime->mal_id);
+
+        if ($this->anime->mal_id) {
+            $response = Http::withoutVerifying()->get("https://api.jikan.moe/v4/anime/{$this->anime->mal_id}");
+            if ($response->successful()) {
+                $data = $response->json()['data'];
+
+                $this->anime->update([
+                    'synopsis' => $data['synopsis'] ?? null,
+                    'title_english' => $data['title_english'] ?? null,
+                    'episodes' => $data['episodes'] ?? null,
+                    'type' => $data['type'] ?? null,
+                    'source' => $data['source'] ?? null,
+                    'status' => $data['status'] ?? null,
+                    'season' => $data['season'] ?? null,
+                    'year' => $data['year'] ?? null,
+                ]);
+
+                Log::info("JOB SUCCÈS : Données mises à jour pour " . $this->anime->title);
+            } else {
+                Log::error("JOB ERREUR API : " . $response->status());
+            }
+        } else {
+            Log::warning("JOB SKIP : Pas de mal_id trouvé.");
+        }
+    }
+}
