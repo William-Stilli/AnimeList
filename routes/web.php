@@ -21,7 +21,7 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('AnimeSearch');
     })->name('anime.search');
 
-    Route::get('/animes/{anime}', [App\Http\Controllers\AnimeController::class, 'show'])->name('animes.show');
+    Route::get('/animes/{anime}', [AnimeController::class, 'show'])->name('animes.show');
     Route::post('/animes', [AnimeController::class, 'store'])->name('animes.store');
     Route::put('/animes/{anime}', [AnimeController::class, 'update'])->name('animes.update');
     Route::delete('/animes/{anime}', [AnimeController::class, 'destroy'])->name('anime.destroy');

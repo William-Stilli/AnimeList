@@ -47,6 +47,11 @@ onMounted(async () => {
             <div class="bg-white rounded-xl shadow-xl overflow-hidden flex flex-col md:flex-row">
 
                 <div class="md:w-1/3 lg:w-1/4 bg-gray-50 p-6 flex flex-col items-center border-r border-gray-100">
+                    <Link :href="route('library')"
+                        class="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 transition-all duration-200">
+                        ← Retour à la bibliothèque
+                    </Link>
+
                     <img :src="anime.image_url" class="w-48 rounded-lg shadow-lg mb-6 border-4 border-white">
 
                     <div v-if="myData" class="w-full bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
@@ -64,10 +69,6 @@ onMounted(async () => {
                             <span class="font-bold">{{ myData.progress }} / {{ anime.episodes || '?' }}</span>
                         </div>
                     </div>
-
-                    <Link :href="route('library')" class="text-blue-600 hover:underline text-sm mt-4">
-                        ← Retour à la bibliothèque
-                    </Link>
                 </div>
 
                 <div class="md:w-2/3 lg:w-3/4 p-8">
