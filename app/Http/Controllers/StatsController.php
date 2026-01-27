@@ -39,4 +39,16 @@ class StatsController extends Controller
             'genreData' => $genreStats
         ]);
     }
+
+    public function ranking(Request $request)
+    {
+        $animes = $request->user()->animes()
+            ->select('animes.id', 'title', 'image_url')
+            ->withPivot('rank')
+            ->get();
+
+        return Inertia::render('Ranking', [
+            'animes' => $animes
+        ]);
+    }
 }

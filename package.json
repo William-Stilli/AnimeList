@@ -33,6 +33,7 @@
     },
     "dependencies": {
         "@formkit/auto-animate": "^0.9.0",
+        "@formkit/drag-and-drop": "^0.5.3",
         "@inertiajs/vue3": "^2.3.7",
         "@vueuse/core": "^12.8.2",
         "axios": "^1.13.2",

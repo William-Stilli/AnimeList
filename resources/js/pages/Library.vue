@@ -1,6 +1,6 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { ref, computed, onMounted, watch } from 'vue';
 import axios, { spread } from 'axios';
 import { useToast } from 'vue-toastification';
@@ -227,7 +227,9 @@ const changeCover = async (newUrl) => {
 
                         <div v-if="filteredAnimes.length > 0" ref="parent"
                             class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                            <div v-for="anime in filteredAnimes" :key="anime.id" @click="openEditModal(anime)"
+                            <div v-for="anime in filteredAnimes" :key="anime.id"
+                                @click="router.visit(route('animes.show', anime.id))"
+                                @contextmenu.prevent="openEditModal(anime)"
                                 class="cursor-pointer group border rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col h-full bg-white relative">
                                 <div class="h-48 overflow-hidden bg-gray-200 relative">
                                     <img :src="anime.image_url" :alt="anime.title"
@@ -235,7 +237,8 @@ const changeCover = async (newUrl) => {
                                     <div
                                         class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center">
                                         <span
-                                            class="text-white opacity-0 group-hover:opacity-100 font-bold bg-black/50 px-3 py-1 rounded-full text-sm">Modifier</span>
+                                            class="text-white opacity-0 group-hover:opacity-100 font-bold bg-black/50 px-3 py-1 rounded-full text-sm">Click
+                                            droit pour modifier</span>
                                     </div>
                                 </div>
 

@@ -35,9 +35,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/manual-ranking', [AnimeController::class, 'manualRanking']);
     Route::post('/api/reorder', [AnimeController::class, 'reorder']);
 
-    Route::get('/tier-list', function () {
-        return Inertia::render('TierList');
-    })->name('anime.tier-list');
+    Route::get('/ranking', [StatsController::class, 'ranking'])->name('anime.ranking');
 
     Route::get('/stats', [StatsController::class, 'index'])->name('stats');
 

@@ -37,7 +37,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Ranking',
-        href: route('anime.tier-list'),
+        href: route('anime.ranking'),
         icon: LayoutGrid,
     },
     {

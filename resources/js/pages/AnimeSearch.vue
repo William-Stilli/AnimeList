@@ -86,7 +86,7 @@ const addToLibrary = async (anime) => {
 
                     <div class="flex flex-col justify-between flex-1">
                         <div>
-                            <h3 class="font-bold text-lg leading-tight">
+                            <h3 class="font-bold text-lg text-gray-500 leading-tight">
                                 {{ anime.title_english || anime.title }}
                             </h3>
                             <p v-if="anime.title_english" class="text-xs text-gray-400">{{ anime.title }}</p>

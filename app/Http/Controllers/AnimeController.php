@@ -5,9 +5,23 @@ use App\Models\Anime;
 use App\Models\Genre;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class AnimeController extends Controller
 {
+    public function show(Request $request, Anime $anime)
+    {
+        $anime->load([
+            'genres',
+            'users' => function ($query) use ($request) {
+                $query->where('users.id', $request->user()->id);
+            }
+        ]);
+
+        return Inertia::render('AnimeDetails', [
+            'anime' => $anime
+        ]);
+    }
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -57,19 +71,29 @@ class AnimeController extends Controller
     public function update(Request $request, Anime $anime)
     {
         $validated = $request->validate([
-            'status' => 'required|in:watching,completed,plan_to_watch,dropped',
-            'progress' => 'integer|min:0',
-            'score' => 'nullable|integer|min:0|max:10',
-            'image_url' => 'nullable|string'
+            'status' => 'sometimes|in:watching,completed,plan_to_watch,dropped',
+            'progress' => 'sometimes|integer|min:0',
+            'score' => 'sometimes|integer|min:0|max:10',
+            'rank' => 'sometimes|nullable|integer',
+            'image_url' => 'sometimes|string'
         ]);
 
-        $request->user()->animes()->updateExistingPivot($anime->id, [
-            'status' => $validated['status'],
-            'progress' => $validated['progress'],
-            'score' => $validated['score'],
-        ]);
+        $pivotData = [];
 
-        if ($request->has('image_url')) {
+        if (isset($validated['status']))
+            $pivotData['status'] = $validated['status'];
+        if (isset($validated['progress']))
+            $pivotData['progress'] = $validated['progress'];
+        if (isset($validated['score']))
+            $pivotData['score'] = $validated['score'];
+        if (array_key_exists('rank', $validated))
+            $pivotData['rank'] = $validated['rank'];
+
+        if (!empty($pivotData)) {
+            $request->user()->animes()->updateExistingPivot($anime->id, $pivotData);
+        }
+
+        if (isset($validated['image_url'])) {
             $anime->update(['image_url' => $validated['image_url']]);
         }
 
