@@ -38,8 +38,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ranking', [StatsController::class, 'ranking'])->name('anime.ranking');
 
     Route::get('/stats', [StatsController::class, 'index'])->name('stats');
-
-
 });
 
 require __DIR__ . '/settings.php';
