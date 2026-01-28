@@ -13,9 +13,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/search', function () {
         return Inertia::render('AnimeSearch');

@@ -35,10 +35,27 @@ class FetchAnimeData implements ShouldQueue
     {
         Log::info("JOB DÉMARRÉ : Récupération pour l'ID " . $this->anime->mal_id);
 
+
+
         if ($this->anime->mal_id) {
             $response = Http::withoutVerifying()->get("https://api.jikan.moe/v4/anime/{$this->anime->mal_id}");
             if ($response->successful()) {
                 $data = $response->json()['data'];
+
+                $durationStr = $data['duration'] ?? '';
+                $durationMinutes = 24;
+
+                if (preg_match('/(\d+)\s*hr/', $durationStr, $hours)) {
+                    $durationMinutes = (int) $hours[1] * 60;
+                }
+
+                if (preg_match('/(\d+)\s*min/', $durationStr, $mins)) {
+                    if (isset($hours[1])) {
+                        $durationMinutes += (int) $mins[1];
+                    } else {
+                        $durationMinutes = (int) $mins[1];
+                    }
+                }
 
                 $this->anime->update([
                     'synopsis' => $data['synopsis'] ?? null,
@@ -49,6 +66,7 @@ class FetchAnimeData implements ShouldQueue
                     'status' => $data['status'] ?? null,
                     'season' => $data['season'] ?? null,
                     'year' => $data['year'] ?? null,
+                    'duration' => $durationMinutes,
                 ]);
 
                 if (isset($data['genres'])) {
