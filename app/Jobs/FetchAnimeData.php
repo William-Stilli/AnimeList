@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\Middleware\RateLimited;
 
 class FetchAnimeData implements ShouldQueue
 {
@@ -18,9 +19,16 @@ class FetchAnimeData implements ShouldQueue
 
     public $anime;
 
+    public $tries = 3;
+
     public function __construct(Anime $anime)
     {
         $this->anime = $anime;
+    }
+
+    public function middleware(): array
+    {
+        return [new RateLimited('jikan-api')];
     }
 
     public function handle(): void
