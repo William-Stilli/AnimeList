@@ -115,7 +115,10 @@ const saveChanges = async () => {
     }
 
     try {
-        await axios.put(`/animes/${editingAnime.value.id}`, form.value);
+        await axios.post(`/animes/${editingAnime.value.id}`, {
+            ...form.value,
+            _method: 'PUT'
+        });
 
         const index = animes.value.findIndex(a => a.id === editingAnime.value.id);
         if (index !== -1) {
@@ -183,9 +186,10 @@ const changeCover = async (newUrl) => {
     }
 
     try {
-        await axios.put(`/animes/${editingAnime.value.id}`, {
+        await axios.post(`/animes/${editingAnime.value.id}`, {
             ...form.value,
-            image_url: newUrl
+            image_url: newUrl,
+            _method: 'PUT'
         });
         toast.success("Nouvelle couverture appliquée !");
     } catch (error) {
@@ -254,7 +258,7 @@ const changeCover = async (newUrl) => {
                                             class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 font-medium border">{{
                                                 statusLabel(anime.pivot.status) }}</span>
                                         <span class="text-xs text-gray-500 font-mono">Ep. {{ anime.pivot.progress
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <div v-if="anime.pivot.score" class="text-xs text-yellow-600 font-bold mt-1">★
                                         {{

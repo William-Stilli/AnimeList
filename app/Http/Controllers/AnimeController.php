@@ -86,11 +86,27 @@ class AnimeController extends Controller
         if (array_key_exists('rank', $validated))
             $pivotData['rank'] = $validated['rank'];
 
+        if (isset($validated['progress']) && $anime->episodes && $validated['progress'] >= $anime->episodes) {
+            $pivotData['status'] = 'completed';
+            $pivotData['progress'] = $anime->episodes;
+        }
+
         if (isset($validated['status']) && $validated['status'] === 'completed') {
             if ($anime->episodes) {
                 $pivotData['progress'] = $anime->episodes;
             }
         }
+
+        // if ($request->has('progress')) {
+        //     $current = $request->user()->animes()->where('anime_id', $anime->id)->first()->pivot->progress;
+
+        //     dd([
+        //         'Reçu du Front' => $request->input('progress'),
+        //         'Actuel en Base' => $current,
+        //         'ID Anime' => $anime->id,
+        //         'ID User' => $request->user()->id
+        //     ]);
+        // }
 
         if (!empty($pivotData)) {
             $request->user()->animes()->updateExistingPivot($anime->id, $pivotData);
@@ -100,7 +116,7 @@ class AnimeController extends Controller
             $anime->update(['image_url' => $validated['image_url']]);
         }
 
-        return response()->json(['message' => 'Mise à jour réussie !']);
+        return redirect()->back()->with('success', 'Progression mise à jour !');
     }
 
     public function destroy(Request $request, Anime $anime)

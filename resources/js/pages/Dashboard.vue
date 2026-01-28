@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, usePage, Link } from '@inertiajs/vue3';
+import { Head, usePage, Link, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
@@ -9,6 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Play, Trophy, Clock, Tv } from 'lucide-vue-next';
 import { type BreadcrumbItem } from '@/types';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 defineProps({
     watching: Array,
@@ -24,6 +27,18 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard().url,
     },
 ];
+
+const incrementProgress = (anime: any) => {
+    const nextProgress = Number(anime.pivot.progress) + 1;
+
+    router.post(route('animes.update', anime.id), {
+        _method: 'PUT',
+        progress: nextProgress
+    }, {
+        preserveScroll: true,
+        onSuccess: () => console.log("Episode +1 validé !")
+    });
+};
 </script>
 
 <template>
@@ -110,8 +125,17 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 </div>
 
                                 <div class="mt-4 flex justify-end">
+
+
                                     <Button size="sm" variant="outline" class="w-full gap-2">
                                         +1 Épisode
+                                    </Button>
+
+                                    <Button size="sm" variant="outline"
+                                        class="w-full gap-2 cursor-pointer active:scale-95 transition-transform"
+                                        @click="incrementProgress(anime)"
+                                        :disabled="anime.episodes && anime.pivot.progress >= anime.episodes">
+                                        <Play class="w-4 h-4" /> +1 Épisode
                                     </Button>
                                 </div>
                             </div>
