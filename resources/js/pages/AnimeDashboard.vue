@@ -2,13 +2,9 @@
 import { Head, usePage, Link, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { dashboard } from '@/routes';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Play, Trophy, Clock, Tv } from 'lucide-vue-next';
-import { type BreadcrumbItem } from '@/types';
-import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 import { useToast } from 'vue-toastification';
 
 const toast = useToast();
@@ -20,13 +16,6 @@ defineProps({
 
 const page = usePage();
 const user = computed(() => page.props.auth.user)
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: `Welcome ${user.value.name}`,
-        href: dashboard().url,
-    },
-];
 
 const incrementProgress = (anime: any) => {
     const nextProgress = Number(anime.pivot.progress) + 1;
@@ -125,12 +114,6 @@ const incrementProgress = (anime: any) => {
                                 </div>
 
                                 <div class="mt-4 flex justify-end">
-
-
-                                    <Button size="sm" variant="outline" class="w-full gap-2">
-                                        +1 Épisode
-                                    </Button>
-
                                     <Button size="sm" variant="outline"
                                         class="w-full gap-2 cursor-pointer active:scale-95 transition-transform"
                                         @click="incrementProgress(anime)"
@@ -139,3 +122,19 @@ const incrementProgress = (anime: any) => {
                                     </Button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else
+                class="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300">
+                <p class="text-gray-500 mb-4">Aucun animé en cours... C'est le calme plat.</p>
+                <Link :href="route('library')">
+                    <Button>Explorer ma bibliothèque</Button>
+                </Link>
+            </div>
+
+        </div>
+    </AppLayout>
+</template>

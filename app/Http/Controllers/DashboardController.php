@@ -28,7 +28,7 @@ class DashboardController extends Controller
         $days = floor($totalMinutes / 1440);
         $hours = floor(($totalMinutes % 1440) / 60);
 
-        return Inertia::render('Dashboard', [
+        return Inertia::render('AnimeDashboard', [
             'watching' => $watching,
             'stats' => [
                 'episodes' => $totalEpisodes,

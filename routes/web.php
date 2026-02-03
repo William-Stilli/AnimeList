@@ -5,6 +5,7 @@ use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnimeController;
 use App\Http\Controllers\StatsController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -13,7 +14,11 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    // Route::get('dashboard', function () {
+    //     return Inertia::render('Dashboard');
+    // })->name('dashboard');
+
+    Route::get('anime-dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/search', function () {
         return Inertia::render('AnimeSearch');
@@ -25,6 +30,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/animes/{anime}', [AnimeController::class, 'destroy'])->name('anime.destroy');
 
     Route::get('/library', function () {
+        //dd("STOP ! Je suis vivant !");
         return Inertia::render('Library');
     })->name('library');
 
@@ -36,6 +42,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ranking', [StatsController::class, 'ranking'])->name('anime.ranking');
 
     Route::get('/stats', [StatsController::class, 'index'])->name('stats');
+
+
 });
 
 require __DIR__ . '/settings.php';
