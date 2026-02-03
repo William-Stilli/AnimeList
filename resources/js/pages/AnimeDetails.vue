@@ -1,19 +1,46 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import { useToast } from 'vue-toastification';
+
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 const props = defineProps({
     anime: Object
 });
 
+const toast = useToast();
 const jikanData = ref(null);
-const loading = ref(null);
+const loading = ref(true);
+const isEditing = ref(false);
 
 const myData = computed(() => {
     return props.anime.users.length > 0 ? props.anime.users[0].pivot : null;
 });
+
+const form = useForm({
+    status: myData.value?.status || 'plan_to_watch',
+    score: myData.value?.score?.toString() || '0',
+    progress: myData.value?.progress || 0,
+    review: myData.value?.review || '',
+});
+
+const saveChanges = () => {
+    form.transform((data) => ({
+        ...data,
+        _method: 'PUT'
+    })).post(route('animes.update', props.anime.id), {
+        onSuccess: () => {
+            isEditing.value = false;
+            toast.success("Dossier mis à jour !");
+        },
+        onError: () => toast.error("Erreur lors de la sauvegarde.")
+    });
+};
 
 onMounted(async () => {
     if (props.anime.mal_id) {
@@ -21,7 +48,7 @@ onMounted(async () => {
             const response = await axios.get(`https://api.jikan.moe/v4/anime/${props.anime.mal_id}`);
             jikanData.value = response.data.data;
         } catch (error) {
-            console.error("Erreur Jikan", e);
+            console.error("Erreur Jikan", error);
         } finally {
             loading.value = false;
         }
@@ -44,30 +71,111 @@ onMounted(async () => {
         </div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 pb-12">
-            <div class="bg-white rounded-xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden flex flex-col md:flex-row">
 
-                <div class="md:w-1/3 lg:w-1/4 bg-gray-50 p-6 flex flex-col items-center border-r border-gray-100">
+                <div
+                    class="md:w-1/3 lg:w-1/4 bg-gray-50 dark:bg-gray-900 p-6 flex flex-col items-center border-r border-gray-100 dark:border-gray-700">
+
                     <Link :href="route('library')"
-                        class="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 transition-all duration-200">
-                        ← Retour à la bibliothèque
+                        class="mb-6 text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1 transition-colors">
+                        ← Retour Bibliothèque
                     </Link>
 
-                    <img :src="anime.image_url" class="w-48 rounded-lg shadow-lg mb-6 border-4 border-white">
+                    <img :src="anime.image_url"
+                        class="w-48 rounded-lg shadow-lg mb-6 border-4 border-white dark:border-gray-700">
 
-                    <div v-if="myData" class="w-full bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
-                        <h3 class="font-bold text-gray-700 border-b pb-2 mb-2 text-center">Ma Progression</h3>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span>Statut:</span>
-                            <span class="font-bold text-blue-600">{{ myData.status }}</span>
+                    <div
+                        class="w-full bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+
+                        <div class="flex justify-between items-center mb-4 border-b pb-2 dark:border-gray-700">
+                            <h3 class="font-bold text-gray-700 dark:text-gray-200">Mon Dossier</h3>
+                            <button @click="isEditing = !isEditing"
+                                class="text-xs text-blue-600 hover:underline font-semibold cursor-pointer">
+                                {{ isEditing ? 'Annuler' : 'Modifier' }}
+                            </button>
                         </div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span>Score:</span>
-                            <span class="font-bold text-yellow-600">★ {{ myData.score }}/10</span>
+
+                        <div v-if="!isEditing && myData" class="space-y-3">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Statut</span>
+                                <span
+                                    class="font-medium capitalize text-gray-900 dark:text-white px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs">
+                                    {{ myData.status.replace(/_/g, ' ') }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Score</span>
+                                <span class="font-bold text-yellow-500">★ {{ myData.score }}/10</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Avancement</span>
+                                <span class="font-medium">{{ myData.progress }} / {{ anime.episodes || '?' }} eps</span>
+                            </div>
+
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+                                <div class="bg-blue-500 h-1.5 rounded-full"
+                                    :style="{ width: anime.episodes ? Math.min((myData.progress / anime.episodes * 100), 100) + '%' : '0%' }">
+                                </div>
+                            </div>
+
+                            <div v-if="myData.review"
+                                class="mt-4 pt-4 border-t border-dashed border-gray-200 dark:border-gray-700">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Ma Critique</span>
+                                <p class="text-sm text-gray-600 dark:text-gray-300 italic mt-1 whitespace-pre-wrap">"{{
+                                    myData.review }}"</p>
+                            </div>
                         </div>
-                        <div class="flex justify-between text-sm">
-                            <span>Épisodes:</span>
-                            <span class="font-bold">{{ myData.progress }} / {{ anime.episodes || '?' }}</span>
+
+                        <div v-else class="space-y-4">
+
+                            <div class="space-y-1">
+                                <Label class="text-xs">Statut</Label>
+                                <select v-model="form.status"
+                                    class="w-full text-sm rounded-md border-gray-300 p-2 bg-gray-50 dark:bg-gray-900 dark:text-white">
+                                    <option value="watching">En cours</option>
+                                    <option value="completed">Terminé</option>
+                                    <option value="plan_to_watch">À voir</option>
+                                    <option value="dropped">Abandonné</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-1">
+                                <Label class="text-xs">Note (/10)</Label>
+                                <select v-model="form.score"
+                                    class="w-full text-sm rounded-md border-gray-300 p-2 bg-gray-50 dark:bg-gray-900 dark:text-white">
+                                    <option value="0">-</option>
+                                    <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between">
+                                    <Label class="text-xs">Épisodes vus</Label>
+                                    <span class="text-xs text-gray-400">{{ form.progress }} / {{ anime.episodes || '?'
+                                        }}</span>
+                                </div>
+                                <Input type="number" v-model="form.progress" min="0" :max="anime.episodes || 999"
+                                    class="h-9 bg-gray-50 dark:bg-gray-900" />
+                            </div>
+
+                            <div class="space-y-1">
+                                <Label class="text-xs">Ta Critique</Label>
+                                <textarea v-model="form.review" rows="4"
+                                    class="w-full text-sm rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-2 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                    placeholder="Pourquoi cette note ?"></textarea>
+                            </div>
+
+                            <Button @click="saveChanges" class="w-full" :disabled="form.processing">
+                                {{ form.processing ? 'Sauvegarde...' : 'Enregistrer' }}
+                            </Button>
                         </div>
+
+                        <div v-if="!isEditing && !myData" class="text-center py-4">
+                            <Button @click="isEditing = true" size="sm" variant="outline">
+                                Ajouter à ma liste
+                            </Button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -87,7 +195,7 @@ onMounted(async () => {
                         </div>
 
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">Synopsis</h2>
-                        <p class="text-gray-600 leading-relaxed mb-6 whitespace-pre-line">
+                        <p class="text-gray-600 leading-relaxed mb-6 whitespace-pre-line text-justify">
                             {{ jikanData.synopsis }}
                         </p>
 

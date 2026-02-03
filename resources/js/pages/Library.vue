@@ -58,8 +58,7 @@ const filteredAnimes = computed(() => {
 
     if (searchQuery.value) {
         const lowerQuery = searchQuery.value.toLowerCase();
-        result = result.filter(anime => anime.title.toLowerCase().includes(lowerQuery) || anime.title_english.toLowerCase().includes(lowerQuery)
-        );
+        result = result.filter(anime => { return anime.genres && anime.genres.some(genre => genre.name.toLowerCase().includes(lowerQuery)) });
     }
     return result
 });
@@ -229,7 +228,8 @@ const changeCover = async (newUrl) => {
                                     </svg>
                                 </div>
 
-                                <input v-model="searchQuery" type="text" placeholder="Chercher dans ma liste..."
+                                <input v-model="searchQuery" type="text"
+                                    placeholder="Filtrer par genre (ex: Isekai, Horror)..."
                                     class="pl-10 block w-full rounded-full border-gray-300 bg-gray-50 focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition">
                             </div>
                         </div>
@@ -252,6 +252,13 @@ const changeCover = async (newUrl) => {
                                 </div>
 
                                 <div class="p-3 flex flex-col flex-grow justify-between">
+                                    <div class="flex flex-wrap gap-1 mb-1 h-5 overflow-hidden">
+                                        <span v-for="g in anime.genres?.slice(0, 3)" :key="g.id"
+                                            class="text-[10px] uppercase font-bold text-gray-400 bg-gray-50 px-1 rounded">
+                                            {{ g.name }}
+                                        </span>
+                                    </div>
+
                                     <h3 class="font-bold truncate text-sm mb-2">{{ anime.title }}</h3>
                                     <div class="flex justify-between items-center mt-auto">
                                         <span

@@ -11,7 +11,7 @@ class Anime extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'anime_user')
-            ->withPivot('status', 'score', 'progress')
+            ->withPivot('status', 'score', 'progress', 'review')
             ->withTimestamps();
     }
 

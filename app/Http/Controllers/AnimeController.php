@@ -61,6 +61,7 @@ class AnimeController extends Controller
     {
         return $request->user()
             ->animes()
+            ->with('genres')
             ->orderByPivot('updated_at', 'desc')
             ->get();
     }
@@ -72,7 +73,8 @@ class AnimeController extends Controller
             'progress' => 'sometimes|integer|min:0',
             'score' => 'sometimes|integer|min:0|max:10',
             'rank' => 'sometimes|nullable|integer',
-            'image_url' => 'sometimes|string'
+            'image_url' => 'sometimes|string',
+            'review' => 'nullable|string|max:5000',
         ]);
 
         $pivotData = [];
@@ -86,6 +88,10 @@ class AnimeController extends Controller
         if (array_key_exists('rank', $validated))
             $pivotData['rank'] = $validated['rank'];
 
+        if (array_key_exists('review', $validated)) {
+            $pivotData['review'] = $validated['review'];
+        }
+
         if (isset($validated['progress']) && $anime->episodes && $validated['progress'] >= $anime->episodes) {
             $pivotData['status'] = 'completed';
             $pivotData['progress'] = $anime->episodes;
@@ -97,17 +103,6 @@ class AnimeController extends Controller
             }
         }
 
-        // if ($request->has('progress')) {
-        //     $current = $request->user()->animes()->where('anime_id', $anime->id)->first()->pivot->progress;
-
-        //     dd([
-        //         'Reçu du Front' => $request->input('progress'),
-        //         'Actuel en Base' => $current,
-        //         'ID Anime' => $anime->id,
-        //         'ID User' => $request->user()->id
-        //     ]);
-        // }
-
         if (!empty($pivotData)) {
             $request->user()->animes()->updateExistingPivot($anime->id, $pivotData);
         }
@@ -116,7 +111,7 @@ class AnimeController extends Controller
             $anime->update(['image_url' => $validated['image_url']]);
         }
 
-        return redirect()->back()->with('success', 'Progression mise à jour !');
+        return redirect()->back()->with('success', 'Dossier mis à jour avec succès !');
     }
 
     public function destroy(Request $request, Anime $anime)

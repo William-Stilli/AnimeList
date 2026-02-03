@@ -53,7 +53,7 @@ class User extends Authenticatable
     public function animes()
     {
         return $this->belongsToMany(Anime::class, 'anime_user')
-            ->withPivot('status', 'score', 'progress')
+            ->withPivot('status', 'score', 'progress', 'review')
             ->withTimestamps();
     }
 }
