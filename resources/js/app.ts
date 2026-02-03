@@ -2,16 +2,18 @@ import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import type { DefineComponent } from 'vue';
-import { createApp, h } from 'vue';
+import { createApp, h, DefineComponent } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+
+// Si tu as des soucis avec Ziggy, tu peux essayer d'importer la config générée si elle existe :
+// import { Ziggy } from './ziggy'; 
 
 import { initializeTheme } from './composables/useAppearance';
 
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'StuAnimeList';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
@@ -38,7 +40,7 @@ createInertiaApp({
                 icon: true,
                 rtl: false,
                 transition: "Vue-Toastification__fade",
-                maxTroast: 10,
+                maxToasts: 10,
                 newestOnTop: true,
             })
             .mount(el);
@@ -48,5 +50,4 @@ createInertiaApp({
     },
 });
 
-// This will set light / dark mode on page load...
 initializeTheme();

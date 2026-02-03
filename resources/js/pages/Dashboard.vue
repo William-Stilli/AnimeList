@@ -139,3 +139,19 @@ const incrementProgress = (anime: any) => {
                                     </Button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else
+                class="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300">
+                <p class="text-gray-500 mb-4">Aucun animé en cours... C'est le calme plat.</p>
+                <Link :href="route('library')">
+                    <Button>Explorer ma bibliothèque</Button>
+                </Link>
+            </div>
+
+        </div>
+    </AppLayout>
+</template>

@@ -30,7 +30,7 @@ export default defineConfig({
             origin: '*',
         },
         hmr: {
-            host: '157.26.120.168'
+            host: '157.26.121.100'
         },
     },
 });
