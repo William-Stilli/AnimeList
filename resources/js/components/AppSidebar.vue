@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
+import {
+    LayoutDashboard,
+    Library,
+    Search,
+    Trophy,
+    BarChart3,
+    Users,
+    BookOpen,
+    Folder
+} from 'lucide-vue-next';
 
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -22,28 +31,33 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Anime Dashboard',
         href: route('anime.dashboard'),
-        icon: LayoutGrid,
+        icon: LayoutDashboard
     },
     {
         title: 'Library',
         href: route('library'),
-        icon: LayoutGrid,
+        icon: Library,
     },
     {
         title: 'Search',
         href: route('anime.search'),
-        icon: LayoutGrid,
+        icon: Search,
     },
     {
         title: 'Ranking',
         href: route('anime.ranking'),
-        icon: LayoutGrid,
+        icon: Trophy,
     },
     {
         title: 'Stats',
         href: route('stats'),
-        icon: LayoutGrid,
-    }
+        icon: BarChart3,
+    },
+    {
+        title: 'Other users lists',
+        href: route('community.index'),
+        icon: Users,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

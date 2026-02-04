@@ -56,4 +56,9 @@ class User extends Authenticatable
             ->withPivot('status', 'score', 'progress', 'review')
             ->withTimestamps();
     }
+
+    public function getRouteKeyName()
+    {
+        return 'name';
+    }
 }

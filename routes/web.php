@@ -43,7 +43,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/stats', [StatsController::class, 'index'])->name('stats');
 
+    Route::get('/community', [AnimeController::class, 'community'])->name('community.index');
 
+    Route::get('/u/{user}', [AnimeController::class, 'publicList'])->name('user.list');
 });
 
 require __DIR__ . '/settings.php';

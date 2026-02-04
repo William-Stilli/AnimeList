@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Anime;
 use App\Models\Genre;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -137,5 +138,33 @@ class AnimeController extends Controller
         }
 
         return response()->json(['message' => 'Ordre sauvegardé']);
+    }
+
+    public function publicList(User $user)
+    {
+        $animes = $user->animes()
+            ->with('genres')
+            ->orderByPivot('updated_at', 'desc')
+            ->get();
+
+        return Inertia::render('PublicLibrary', [
+            'animes' => $animes,
+            'targetUser' => [
+                'name' => $user->name,
+                'id' => $user->id,
+            ]
+        ]);
+    }
+
+    public function community(Request $request)
+    {
+        $users = User::where('id', '!=', $request->user()->id)
+            ->withCount('animes')
+            ->orderBy('animes_count', 'desc')
+            ->get();
+
+        return Inertia::render('Community', [
+            'users' => $users
+        ]);
     }
 }

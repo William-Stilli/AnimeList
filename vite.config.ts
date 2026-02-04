@@ -3,6 +3,29 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
+import os from 'os';
+
+function getLocalIP() {
+    const interfaces = os.networkInterfaces();
+
+    if (!interfaces) return 'localhost';
+
+    for (const name of Object.keys(interfaces)) {
+        const networkInterface = interfaces[name];
+
+        if (networkInterface) {
+            for (const iface of networkInterface) {
+                if (iface.family === 'IPv4' && !iface.internal) {
+                    return iface.address;
+                }
+            }
+        }
+    }
+    return 'localhost';
+}
+
+const localIP = getLocalIP();
+console.log(`📡 Host détecté : ${localIP}`);
 
 export default defineConfig({
     plugins: [
@@ -30,7 +53,10 @@ export default defineConfig({
             origin: '*',
         },
         hmr: {
-            host: '157.26.121.100'
+            host: localIP,
+        },
+        watch: {
+            usePolling: true,
         },
     },
 });
