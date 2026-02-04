@@ -1,6 +1,6 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router, Link } from '@inertiajs/vue3';
+import { Head, router, Link } from '@inertiajs/vue3'; // Link est déjà importé, parfait
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -106,9 +106,8 @@ const filteredAnimes = computed(() => {
             </div>
 
             <div v-if="filteredAnimes.length > 0" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                <div v-for="anime in filteredAnimes" :key="anime.id"
+                <Link v-for="anime in filteredAnimes" :key="anime.id" :href="route('animes.show', anime.mal_id)"
                     class="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full border border-gray-100/50">
-
                     <div class="aspect-[2/3] overflow-hidden relative bg-gray-200">
                         <img :src="anime.image_url" :alt="anime.title"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
@@ -150,7 +149,7 @@ const filteredAnimes = computed(() => {
                             </span>
                         </div>
                     </div>
-                </div>
+                </Link>
             </div>
 
             <div v-else

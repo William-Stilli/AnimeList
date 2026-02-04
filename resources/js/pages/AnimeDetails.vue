@@ -30,7 +30,17 @@ const goBack = () => {
     }
 };
 
+// --- CORRECTION ICI ---
+// On intègre DIRECTEMENT les infos de l'anime dans le formulaire
+// Plus besoin de champs cachés HTML qui ne marchent pas avec Inertia
 const form = useForm({
+    // Champs d'identification (pour la création)
+    mal_id: props.anime.mal_id,
+    title: props.anime.title,
+    image_url: props.anime.image_url,
+    episodes: props.anime.episodes,
+
+    // Champs utilisateur (pour l'édition)
     status: myData.value?.status || 'plan_to_watch',
     score: myData.value?.score?.toString() || '0',
     progress: myData.value?.progress ?? (myData.value?.status === 'completed' ? (props.anime.episodes || 0) : 0),
@@ -50,7 +60,14 @@ const saveChanges = () => {
     });
 };
 
+// Le Watcher doit aussi mettre à jour les infos d'identification si on change d'anime
 watch(() => props.anime, (newAnime) => {
+    // Mise à jour des infos de base
+    form.mal_id = newAnime.mal_id;
+    form.title = newAnime.title;
+    form.image_url = newAnime.image_url;
+    form.episodes = newAnime.episodes;
+
     const myPivot = newAnime.users?.length > 0 ? newAnime.users[0].pivot : null;
 
     if (myPivot) {
@@ -125,19 +142,20 @@ onMounted(async () => {
 
                         <div v-if="!isEditing && myData" class="space-y-3">
                             <div class="flex justify-between text-sm">
-                                <span class="text-white">Statut</span>
+                                <span class="text-gray-500 dark:text-gray-400">Statut</span>
                                 <span
-                                    class="font-medium capitalize text-white dark:text-white px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs">
+                                    class="font-medium capitalize px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs text-gray-800 dark:text-gray-200">
                                     {{ myData.status.replace(/_/g, ' ') }}
                                 </span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-white">Score</span>
+                                <span class="text-gray-500 dark:text-gray-400">Score</span>
                                 <span class="font-bold text-yellow-500">★ {{ myData.score }}/10</span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-white">Avancement</span>
-                                <span class="font-medium">{{ myData.progress }} / {{ anime.episodes || '?' }} eps</span>
+                                <span class="text-gray-500 dark:text-gray-400">Avancement</span>
+                                <span class="font-medium text-gray-800 dark:text-gray-200">{{ myData.progress }} / {{
+                                    anime.episodes || '?' }} eps</span>
                             </div>
 
                             <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
@@ -148,25 +166,20 @@ onMounted(async () => {
 
                             <div v-if="myData.review"
                                 class="mt-4 pt-4 border-t border-dashed border-gray-200 dark:border-gray-700">
-                                <span class="text-xs font-bold text-white uppercase tracking-wide">Ma Critique</span>
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Ma Critique</span>
                                 <p class="text-sm text-gray-600 dark:text-gray-300 italic mt-1 whitespace-pre-wrap">"{{
                                     myData.review }}"</p>
                             </div>
                         </div>
 
                         <div v-else-if="isEditing || !myData" class="space-y-4">
-                            <div v-if="!isEditing && !myData" class="text-center py-4">
-                                <form @submit.prevent="form.post(route('animes.store'), {
-                                    onSuccess: () => toast.success('Ajouté à la liste !')
-                                })">
-                                    <input type="hidden" name="mal_id" :value="anime.mal_id">
-                                        <input type="hidden" name="title" :value="anime.title">
-                                            <input type="hidden" name="image_url" :value="anime.image_url">
-                                                <input type="hidden" name="episodes" :value="anime.episodes || ''">
 
-                                                    <Button type="submit" class="w-full" :disabled="form.processing">
-                                                        Ajouter à ma liste
-                                                    </Button>
+                            <div v-if="!isEditing && !myData" class="text-center py-4">
+                                <form
+                                    @submit.prevent="form.post(route('animes.store'), { onSuccess: () => toast.success('Ajouté à la liste !') })">
+                                    <Button type="submit" class="w-full" :disabled="form.processing">
+                                        Ajouter à ma liste
+                                    </Button>
                                 </form>
                             </div>
 
@@ -195,8 +208,7 @@ onMounted(async () => {
                                     <div class="flex justify-between">
                                         <Label class="text-xs">Épisodes vus</Label>
                                         <span class="text-xs text-gray-400">{{ form.progress }} / {{ anime.episodes ||
-                                            '?'
-                                        }}</span>
+                                            '?' }}</span>
                                     </div>
                                     <Input type="number" v-model="form.progress" min="0" :max="anime.episodes || 999"
                                         class="h-9 bg-gray-50 dark:bg-gray-900" />
@@ -233,13 +245,14 @@ onMounted(async () => {
                             </span>
                         </div>
 
-                        <h2 class="text-2xl font-bold text-white mb-4">Synopsis</h2>
-                        <p class="text-white leading-relaxed mb-6 whitespace-pre-line text-justify">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Synopsis</h2>
+                        <p
+                            class="text-gray-600 dark:text-gray-300 leading-relaxed mb-6 whitespace-pre-line text-justify">
                             {{ jikanData.synopsis }}
                         </p>
 
                         <div v-if="jikanData.trailer?.embed_url" class="mt-8">
-                            <h3 class="font-bold text-gray-800 mb-3">Trailer</h3>
+                            <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-3">Trailer</h3>
                             <iframe class="w-full aspect-video rounded-lg shadow-md" :src="jikanData.trailer.embed_url"
                                 allowfullscreen></iframe>
                         </div>
