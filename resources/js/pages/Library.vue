@@ -237,7 +237,7 @@ const changeCover = async (newUrl) => {
                         <div v-if="filteredAnimes.length > 0" ref="parent"
                             class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                             <div v-for="anime in filteredAnimes" :key="anime.id"
-                                @click="router.visit(route('animes.show', anime.id))"
+                                @click="router.visit(route('animes.show', anime.mal_id))"
                                 @contextmenu.prevent="openEditModal(anime)"
                                 class="cursor-pointer group border rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col h-full bg-white relative">
                                 <div class="h-48 overflow-hidden bg-gray-200 relative">
@@ -265,7 +265,7 @@ const changeCover = async (newUrl) => {
                                             class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 font-medium border">{{
                                                 statusLabel(anime.pivot.status) }}</span>
                                         <span class="text-xs text-gray-500 font-mono">Ep. {{ anime.pivot.progress
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div v-if="anime.pivot.score" class="text-xs text-yellow-600 font-bold mt-1">★
                                         {{

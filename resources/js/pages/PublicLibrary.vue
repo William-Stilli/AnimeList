@@ -74,8 +74,7 @@ const filteredAnimes = computed(() => {
                         <h2 class="text-3xl font-bold tracking-tight flex items-center gap-2 leading-none">
                             {{ targetUser.name }}
                         </h2>
-                        <p class="text-blue-100 mt-1 text-sm font-medium opacity-90">Collection publique • {{
-                            animes.length }} entrées</p>
+                        <p class="text-blue-100 mt-1 text-sm font-medium opacity-90">{{ animes.length }} entrées</p>
                     </div>
                 </div>
 

@@ -73,7 +73,7 @@ class StatsController extends Controller
     {
         $animes = $request->user()->animes()
             ->select('animes.id', 'title', 'image_url')
-            ->withPivot('rank')
+            ->withPivot('rank', 'status')
             ->get();
 
         return Inertia::render('Ranking', [

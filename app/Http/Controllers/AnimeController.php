@@ -1,29 +1,56 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Inertia\Inertia;
 use App\Models\Anime;
 use App\Models\Genre;
-use App\Models\User;
+use App\Jobs\FetchAnimeData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use App\Jobs\FetchAnimeData;
+use Illuminate\Support\Facades\Http;
 
 class AnimeController extends Controller
 {
-    public function show(Request $request, Anime $anime)
+    public function show(Request $request, $id)
     {
-        $anime->load([
-            'genres',
-            'users' => function ($query) use ($request) {
-                $query->where('users.id', $request->user()->id);
+        $anime = Anime::where('mal_id', $id)->first();
+
+        if ($anime) {
+            $anime->load([
+                'users' => function ($query) use ($request) {
+                    $query->where('users.id', $request->user()->id)
+                        ->withPivot('status', 'score', 'progress', 'rank', 'review');
+                }
+            ]);
+        } else {
+            $response = Http::withoutVerifying()->get("https://api.jikan.moe/v4/anime/{$id}");
+
+            if ($response->failed()) {
+                abort(404);
             }
-        ]);
+
+            $apiData = $response->json('data');
+
+            $anime = new Anime([
+                'mal_id' => $apiData['mal_id'],
+                'title' => $apiData['title'],
+                'image_url' => $apiData['images']['jpg']['large_image_url'],
+                'episodes' => $apiData['episodes'],
+                'score' => $apiData['score'],
+                'type' => $apiData['type'],
+                'year' => $apiData['year'] ?? null,
+                'synopsis' => $apiData['synopsis'] ?? '',
+            ]);
+
+            $anime->is_saved = false;
+        }
 
         return Inertia::render('AnimeDetails', [
             'anime' => $anime
         ]);
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -165,6 +192,33 @@ class AnimeController extends Controller
 
         return Inertia::render('Community', [
             'users' => $users
+        ]);
+    }
+
+    public function search(Request $request)
+    {
+        $animes = [];
+        $filters = $request->only(['search']);
+
+        if ($request->filled('search')) {
+            $response = Http::withoutVerifying()
+                ->timeout(10)
+                ->get('https://api.jikan.moe/v4/anime', [
+                    'q' => $request->input('search'),
+                    'sfw' => true,
+                    'limit' => 24,
+                    'order_by' => 'popularity',
+                    'sort' => 'asc'
+                ]);
+
+            if ($response->successful()) {
+                $animes = $response->json('data');
+            }
+        }
+
+        return Inertia::render('AnimeSearch', [
+            'animes' => $animes,
+            'filters' => $filters
         ]);
     }
 }
