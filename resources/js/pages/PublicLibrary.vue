@@ -1,6 +1,6 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router, Link } from '@inertiajs/vue3'; // Link est déjà importé, parfait
+import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -154,7 +154,6 @@ const filteredAnimes = computed(() => {
 
             <div v-else
                 class="flex flex-col items-center justify-center py-20 text-center bg-white rounded-3xl border border-dashed border-gray-300/70">
-                <div class="text-4xl mb-2">🍃</div>
                 <h3 class="text-xl font-bold text-gray-900 mb-2">Aucun résultat trouvé</h3>
                 <p class="text-gray-500 max-w-md mx-auto">
                     Essayez de modifier vos filtres ou votre recherche.

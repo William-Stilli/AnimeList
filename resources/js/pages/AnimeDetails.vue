@@ -18,6 +18,30 @@ const jikanData = ref(null);
 const loading = ref(true);
 const isEditing = ref(false);
 
+const recommendations = ref([]);
+const loadingRecommendations = ref(false);
+const showRecommendations = ref(false);
+
+const fetchRecommendations = async () => {
+    if (recommendations.value.length > 0) {
+        showRecommendations.value = !showRecommendations.value;
+        return;
+    }
+
+    showRecommendations.value = true;
+    loadingRecommendations.value = true;
+
+    try {
+        const response = await axios.get(`https://api.jikan.moe/v4/anime/${props.anime.mal_id}/recommendations`);
+        recommendations.value = response.data.data.slice(0, 12);
+    } catch (error) {
+        console.error("Erreur lors du chargement des recommandations", error);
+        toast.error("Impossible de charger les recommandations.");
+    } finally {
+        loadingRecommendations.value = false;
+    }
+};
+
 const myData = computed(() => {
     return props.anime.users?.length > 0 ? props.anime.users[0].pivot : null;
 });
@@ -30,17 +54,12 @@ const goBack = () => {
     }
 };
 
-// --- CORRECTION ICI ---
-// On intègre DIRECTEMENT les infos de l'anime dans le formulaire
-// Plus besoin de champs cachés HTML qui ne marchent pas avec Inertia
 const form = useForm({
-    // Champs d'identification (pour la création)
     mal_id: props.anime.mal_id,
     title: props.anime.title,
     image_url: props.anime.image_url,
     episodes: props.anime.episodes,
 
-    // Champs utilisateur (pour l'édition)
     status: myData.value?.status || 'plan_to_watch',
     score: myData.value?.score?.toString() || '0',
     progress: myData.value?.progress ?? (myData.value?.status === 'completed' ? (props.anime.episodes || 0) : 0),
@@ -60,9 +79,7 @@ const saveChanges = () => {
     });
 };
 
-// Le Watcher doit aussi mettre à jour les infos d'identification si on change d'anime
 watch(() => props.anime, (newAnime) => {
-    // Mise à jour des infos de base
     form.mal_id = newAnime.mal_id;
     form.title = newAnime.title;
     form.image_url = newAnime.image_url;
@@ -170,6 +187,7 @@ onMounted(async () => {
                                 <p class="text-sm text-gray-600 dark:text-gray-300 italic mt-1 whitespace-pre-wrap">"{{
                                     myData.review }}"</p>
                             </div>
+
                         </div>
 
                         <div v-else-if="isEditing || !myData" class="space-y-4">
@@ -255,6 +273,55 @@ onMounted(async () => {
                             <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-3">Trailer</h3>
                             <iframe class="w-full aspect-video rounded-lg shadow-md" :src="jikanData.trailer.embed_url"
                                 allowfullscreen></iframe>
+                        </div>
+
+                        <div class="mt-12 border-t border-gray-100 dark:border-gray-700 pt-8">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    Si tu as aimé {{ anime.title_english || anime.title }}
+                                </h3>
+
+                                <Button @click="fetchRecommendations" variant="outline" size="sm" class="gap-2">
+                                    <span v-if="showRecommendations && recommendations.length > 0">Masquer</span>
+                                    <span v-else>Voir les recommandations</span>
+                                </Button>
+                            </div>
+
+                            <div v-if="showRecommendations">
+                                <div v-if="loadingRecommendations"
+                                    class="grid grid-cols-3 sm:grid-cols-4 gap-4 animate-pulse">
+                                    <div v-for="n in 8" :key="n" class="space-y-2">
+                                        <div class="aspect-[2/3] bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                                    </div>
+                                </div>
+
+                                <div v-else-if="recommendations.length > 0"
+                                    class="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                                    <Link v-for="rec in recommendations" :key="rec.entry.mal_id"
+                                        :href="route('animes.show', rec.entry.mal_id)"
+                                        class="group relative flex flex-col gap-2 cursor-pointer">
+                                        <div
+                                            class="relative aspect-[2/3] rounded-xl overflow-hidden bg-gray-200 shadow-md transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
+                                            <img :src="rec.entry.images.jpg.large_image_url" :alt="rec.entry.title"
+                                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+
+                                            <div
+                                                class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                                                Votes: {{ rec.votes }}
+                                            </div>
+                                        </div>
+                                        <h4
+                                            class="font-bold text-gray-900 dark:text-white text-xs leading-tight line-clamp-2 group-hover:text-blue-500 transition-colors">
+                                            {{ rec.entry.title }}
+                                        </h4>
+                                    </Link>
+                                </div>
+
+                                <div v-else class="text-center text-gray-500 py-8">
+                                    Aucune recommandation trouvée. Tu as des goûts uniques !
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

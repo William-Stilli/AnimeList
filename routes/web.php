@@ -22,7 +22,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/search', [AnimeController::class, 'search'])->name('anime.search');
 
-    //Route::get('/animes/{anime}', [AnimeController::class, 'show'])->name('animes.show');
     Route::get('/animes/{id}', [AnimeController::class, 'show'])->name('animes.show');
     Route::post('/animes', [AnimeController::class, 'store'])->name('animes.store');
     Route::put('/animes/{anime}', [AnimeController::class, 'update'])->name('animes.update');
@@ -45,6 +44,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/community', [AnimeController::class, 'community'])->name('community.index');
 
     Route::get('/u/{user}', [AnimeController::class, 'publicList'])->name('user.list');
+
+    Route::get('/animes/{id}/recommendations', [AnimeController::class, 'recommendation'])->name('anime.recommendations');
 });
 
 require __DIR__ . '/settings.php';
