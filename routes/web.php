@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnimeController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Settings\DataController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -23,6 +24,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/search', [AnimeController::class, 'search'])->name('anime.search');
 
     Route::get('/animes/{id}', [AnimeController::class, 'show'])->name('animes.show');
+    Route::get('/animes/{id}/recommendations', [AnimeController::class, 'recommendation'])->name('anime.recommendations');
     Route::post('/animes', [AnimeController::class, 'store'])->name('animes.store');
     Route::put('/animes/{anime}', [AnimeController::class, 'update'])->name('animes.update');
     Route::delete('/animes/{anime}', [AnimeController::class, 'destroy'])->name('anime.destroy');
@@ -45,7 +47,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/u/{user}', [AnimeController::class, 'publicList'])->name('user.list');
 
-    Route::get('/animes/{id}/recommendations', [AnimeController::class, 'recommendation'])->name('anime.recommendations');
+
+    Route::get('settings/data', [DataController::class, 'show'])->name('settings.data');
+    Route::get('settings/data/export', [DataController::class, 'export'])->name('settings.data.export');
+    Route::post('settings/data/import', [DataController::class, 'import'])->name('settings.data.import');
 });
 
 require __DIR__ . '/settings.php';

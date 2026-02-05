@@ -229,7 +229,7 @@ const changeCover = async (newUrl) => {
                                 </div>
 
                                 <input v-model="searchQuery" type="text"
-                                    placeholder="Filtrer par genre (ex: Isekai, Horror)..."
+                                    placeholder="Filtrer par genre (ex: Sci-fi, Horror)..."
                                     class="pl-10 block w-full rounded-full border-gray-300 bg-gray-50 focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition">
                             </div>
                         </div>
@@ -265,7 +265,7 @@ const changeCover = async (newUrl) => {
                                             class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 font-medium border">{{
                                                 statusLabel(anime.pivot.status) }}</span>
                                         <span class="text-xs text-gray-500 font-mono">Ep. {{ anime.pivot.progress
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <div v-if="anime.pivot.score" class="text-xs text-yellow-600 font-bold mt-1">★
                                         {{

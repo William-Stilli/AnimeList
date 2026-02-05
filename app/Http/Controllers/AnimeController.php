@@ -105,7 +105,17 @@ class AnimeController extends Controller
             'review' => 'nullable|string|max:5000',
         ]);
 
+        $user = $request->user();
+        $currentEntry = $user->animes()->where('animes.id', $anime->id)->first();
+
+        if (!$currentEntry) {
+            return redirect()->back()->with('error', 'Cet animé n\'est pas dans ta liste.');
+        }
+
+        $currentPivot = $currentEntry->pivot;
         $pivotData = [];
+        $xpChange = 0;
+        $message = 'Dossier mis à jour.';
 
         if (isset($validated['status']))
             $pivotData['status'] = $validated['status'];
@@ -115,10 +125,8 @@ class AnimeController extends Controller
             $pivotData['score'] = $validated['score'];
         if (array_key_exists('rank', $validated))
             $pivotData['rank'] = $validated['rank'];
-
-        if (array_key_exists('review', $validated)) {
+        if (array_key_exists('review', $validated))
             $pivotData['review'] = $validated['review'];
-        }
 
         if (isset($validated['progress']) && $anime->episodes && $validated['progress'] >= $anime->episodes) {
             $pivotData['status'] = 'completed';
@@ -131,22 +139,87 @@ class AnimeController extends Controller
             }
         }
 
+        $newProgress = $pivotData['progress'] ?? $currentPivot->progress;
+        $oldProgress = $currentPivot->progress;
+
+        if ($newProgress != $oldProgress) {
+            $diff = $newProgress - $oldProgress;
+            $xpChange += ($diff * 10);
+        }
+
+        $newStatus = $pivotData['status'] ?? $currentPivot->status;
+        $oldStatus = $currentPivot->status;
+
+        if ($newStatus === 'completed' && $oldStatus !== 'completed') {
+            $xpChange += 100;
+            $message = "Animé terminé !";
+        }
+
+        if ($oldStatus === 'completed' && $newStatus !== 'completed') {
+            $xpChange -= 100;
+            $message = "Statut corrigé.";
+        }
+
         if (!empty($pivotData)) {
-            $request->user()->animes()->updateExistingPivot($anime->id, $pivotData);
+            $user->animes()->updateExistingPivot($anime->id, $pivotData);
         }
 
         if (isset($validated['image_url'])) {
             $anime->update(['image_url' => $validated['image_url']]);
         }
 
-        return redirect()->back()->with('success', 'Dossier mis à jour avec succès !');
+        if ($xpChange !== 0) {
+            $currentXp = $user->xp;
+            $newXp = max(0, $currentXp + $xpChange);
+
+            $user->update(['xp' => $newXp]);
+
+            if ($xpChange > 0) {
+                $leveledUp = false;
+                if (method_exists($user, 'checkAchievements')) {
+                    $user->checkAchievements($anime);
+                }
+                $message .= " +{$xpChange} XP.";
+            } else {
+                $loss = abs($xpChange);
+                $message .= " Correction effectuée : -{$loss} XP.";
+            }
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function destroy(Request $request, Anime $anime)
     {
-        $request->user()->animes()->detach($anime->id);
+        $user = $request->user();
 
-        return response()->json(['message' => 'Animé supprimé de la liste']);
+        $animeInList = $user->animes()->where('animes.id', $anime->id)->first();
+
+        if ($animeInList) {
+            $pivot = $animeInList->pivot;
+            $xpLost = 0;
+
+            if ($pivot->progress > 0) {
+                $xpLost += ($pivot->progress * 10);
+            }
+
+            if ($pivot->status === 'completed') {
+                $xpLost += 100;
+            }
+
+            if ($xpLost > 0) {
+                $newXp = max(0, $user->xp - $xpLost);
+                $user->update(['xp' => $newXp]);
+            }
+
+            $user->animes()->detach($anime->id);
+
+            return response()->json([
+                'message' => "Animé supprimé. Tu as perdu {$xpLost} XP."
+            ]);
+        }
+
+        return response()->json(['message' => 'Animé introuvable dans ta liste'], 404);
     }
 
     public function manualRanking(Request $request)

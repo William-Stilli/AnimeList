@@ -12,6 +12,8 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        $user->load('badges');
+
         $watching = $user->animes()
             ->wherePivot('status', 'watching')
             ->orderByPivot('updated_at', 'desc')
@@ -34,7 +36,8 @@ class DashboardController extends Controller
                 'episodes' => $totalEpisodes,
                 'time_spent' => "{$days}j {$hours}h",
                 'completed_count' => $user->animes()->wherePivot('status', 'completed')->count(),
-            ]
+            ],
+            'badges' => $user->badges
         ]);
     }
 }
