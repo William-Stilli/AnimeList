@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { Crown } from 'lucide-vue-next';
 
 const props = defineProps({
     animes: Array,
@@ -107,15 +108,27 @@ const filteredAnimes = computed(() => {
 
             <div v-if="filteredAnimes.length > 0" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                 <Link v-for="anime in filteredAnimes" :key="anime.id" :href="route('animes.show', anime.mal_id)"
-                    class="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full border border-gray-100/50">
+                    class="group relative rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer flex flex-col h-full"
+                    :class="anime.pivot.is_stu
+                        ? 'bg-gray-50 ring-4 ring-yellow-500 shadow-2xl shadow-yellow-500/20 scale-[1.02] z-10'
+                        : 'bg-white shadow-sm hover:shadow-xl hover:-translate-y-1 border border-gray-100/50'">
                     <div class="aspect-[2/3] overflow-hidden relative bg-gray-200">
                         <img :src="anime.image_url" :alt="anime.title"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+
                         <div
                             class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         </div>
 
-                        <div v-if="anime.pivot.score > 0" class="absolute top-3 right-3">
+                        <div v-if="anime.pivot.is_stu"
+                            class="absolute top-0 left-0 w-full z-20 bg-gradient-to-b from-black/90 via-black/60 to-transparent pt-3 pb-6">
+                            <div
+                                class="flex items-center gap-2 justify-center text-yellow-400 font-black tracking-widest text-xs uppercase drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                                <Crown class="w-4 h-4 fill-current animate-pulse" /> S.T.U.
+                            </div>
+                        </div>
+
+                        <div v-if="anime.pivot.score > 0" class="absolute top-3 right-3 z-10">
                             <div
                                 class="flex items-center gap-1 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm">
                                 <span class="text-yellow-500 text-sm">★</span>
@@ -124,7 +137,9 @@ const filteredAnimes = computed(() => {
                         </div>
                     </div>
 
-                    <div class="p-4 flex flex-col flex-grow justify-between bg-white relative z-10">
+                    <div class="p-4 flex flex-col flex-grow justify-between relative z-10"
+                        :class="anime.pivot.is_stu ? 'bg-amber-50/10' : 'bg-white'">
+
                         <div>
                             <div
                                 class="flex flex-wrap gap-1.5 mb-3 h-6 overflow-hidden content-start opacity-80 group-hover:opacity-100 transition-opacity">
@@ -133,18 +148,28 @@ const filteredAnimes = computed(() => {
                                     {{ g.name }}
                                 </span>
                             </div>
-                            <h3 class="font-bold text-gray-900 leading-tight line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors"
+
+                            <h3 class="font-bold leading-tight line-clamp-2 mb-2 transition-colors"
+                                :class="anime.pivot.is_stu ? 'text-yellow-600' : 'text-gray-900 group-hover:text-blue-600'"
                                 :title="anime.title">
                                 {{ anime.title }}
                             </h3>
                         </div>
 
-                        <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-50/80">
-                            <span
+                        <div class="flex justify-between items-center mt-4 pt-3 border-t"
+                            :class="anime.pivot.is_stu ? 'border-yellow-200' : 'border-gray-50/80'">
+
+                            <span v-if="anime.pivot.is_stu"
+                                class="text-[10px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-sm">
+                                Chef d'Oeuvre
+                            </span>
+                            <span v-else
                                 :class="['text-[10px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider', statusClasses(anime.pivot.status)]">
                                 {{ statusLabel(anime.pivot.status) }}
                             </span>
-                            <span class="text-xs font-medium text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded-md">
+
+                            <span class="text-xs font-medium font-mono px-2 py-1 rounded-md"
+                                :class="anime.pivot.is_stu ? 'bg-yellow-100 text-yellow-700' : 'text-gray-500 bg-gray-50'">
                                 Ep. {{ anime.pivot.progress }}
                             </span>
                         </div>

@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/animes/{id}', [AnimeController::class, 'show'])->name('animes.show');
     Route::get('/animes/{id}/recommendations', [AnimeController::class, 'recommendation'])->name('anime.recommendations');
     Route::post('/animes', [AnimeController::class, 'store'])->name('animes.store');
+    Route::post('/animes/{anime:mal_id}/stu', [AnimeController::class, 'toggleStuCategorie'])->name('animes.toggleStu');
     Route::put('/animes/{anime}', [AnimeController::class, 'update'])->name('animes.update');
     Route::delete('/animes/{anime}', [AnimeController::class, 'destroy'])->name('anime.destroy');
 

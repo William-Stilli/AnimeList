@@ -18,9 +18,11 @@ const addedAnimes = ref(new Set());
 let timeout = null;
 
 const handleSearch = () => {
-    isSearching.value = true;
     clearTimeout(timeout);
+
     timeout = setTimeout(() => {
+        isSearching.value = true;
+
         router.get(route('anime.search'), { search: query.value }, {
             preserveState: true,
             preserveScroll: true,

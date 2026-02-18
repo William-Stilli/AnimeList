@@ -13,14 +13,14 @@ class BadgeSeeder extends Seeder
             [
                 'name' => 'Drama Queen',
                 'slug' => 'drama-queen',
-                'description' => '5 animés Dramatiques terminés. Prépare les mouchoirs.',
+                'description' => '5 animés Dramatiques terminés.',
                 'icon' => '😭',
                 'xp_bonus' => 300,
             ],
             [
                 'name' => 'Shonen Jumper',
                 'slug' => 'shonen-jumper',
-                'description' => '20 Shonens vus. Le pouvoir de l\'amitié est avec toi.',
+                'description' => '20 Shonens vus.',
                 'icon' => '🔥',
                 'xp_bonus' => 1000,
             ],
@@ -34,7 +34,7 @@ class BadgeSeeder extends Seeder
             [
                 'name' => 'Romcom Enjoyer',
                 'slug' => 'romcom-enjoyer',
-                'description' => '10 Romances. Tu crois encore à l\'amour, c\'est mignon.',
+                'description' => '10 Romances.',
                 'icon' => '💘',
                 'xp_bonus' => 400,
             ],

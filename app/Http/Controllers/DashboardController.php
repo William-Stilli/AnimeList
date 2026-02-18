@@ -30,6 +30,10 @@ class DashboardController extends Controller
         $days = floor($totalMinutes / 1440);
         $hours = floor(($totalMinutes % 1440) / 60);
 
+        $stuAnime = $user->animes()
+            ->wherePivot('is_stu', true)
+            ->first();
+
         return Inertia::render('AnimeDashboard', [
             'watching' => $watching,
             'stats' => [
@@ -37,7 +41,8 @@ class DashboardController extends Controller
                 'time_spent' => "{$days}j {$hours}h",
                 'completed_count' => $user->animes()->wherePivot('status', 'completed')->count(),
             ],
-            'badges' => $user->badges
+            'badges' => $user->badges,
+            'stuAnime' => $stuAnime
         ]);
     }
 }

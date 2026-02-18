@@ -11,6 +11,7 @@ trait HasGamification
         $level = $this->level;
 
         return match (true) {
+            $level >= 75 => 'S.T.U. (Souverain Titanesque Universel)',
             $level >= 50 => 'Divinité',
             $level >= 40 => 'Sage',
             $level >= 25 => 'Otaku',
@@ -47,21 +48,15 @@ trait HasGamification
 
     public function checkAchievements($currentAnime = null)
     {
-        $this->loadMissing('animes.genres');
+        $this->load(['animes.genres', 'badges']);
 
-        $animes = $this->animes;
+        $ownedBadgeSlugs = $this->badges->pluck('slug')->toArray();
 
-        $totalMinutes = $animes->sum(function ($anime) {
+        $watchedAnimes = $this->animes->filter(fn($a) => $a->pivot->progress > 0);
+
+        $totalMinutes = $watchedAnimes->sum(function ($anime) {
             $duration = $anime->duration ?? 24;
             return $anime->pivot->progress * $duration;
-        });
-
-        if ($totalMinutes >= 60000) {
-            $this->unlockBadge('no-life');
-        }
-
-        $watchedAnimes = $animes->filter(function ($anime) {
-            return $anime->pivot->progress > 0;
         });
 
         $genreCounts = [
@@ -80,16 +75,21 @@ trait HasGamification
             }
         }
 
-        if ($genreCounts['Drama'] >= 5) {
-            $this->unlockBadge('drama-queen');
-        }
+        $rules = [
+            'no-life' => $totalMinutes >= 60000,
+            'drama-queen' => $genreCounts['Drama'] >= 5,
+            'shonen-jumper' => $genreCounts['Shounen'] >= 20,
+            'romcom-enjoyer' => $genreCounts['Romance'] >= 10,
+        ];
 
-        if ($genreCounts['Shounen'] >= 20) {
-            $this->unlockBadge('shonen-jumper');
-        }
+        foreach ($rules as $slug => $isEligible) {
+            $hasBadge = in_array($slug, $ownedBadgeSlugs);
 
-        if ($genreCounts['Romance'] >= 10) {
-            $this->unlockBadge('romcom-enjoyer');
+            if ($isEligible && !$hasBadge) {
+                $this->unlockBadge($slug);
+            } elseif (!$isEligible && $hasBadge) {
+                $this->revokeBadge($slug);
+            }
         }
     }
 
@@ -98,6 +98,21 @@ trait HasGamification
         $badge = Badge::where('slug', $slug)->first();
         if ($badge && !$this->badges()->where('badge_id', $badge->id)->exists()) {
             $this->badges()->attach($badge->id);
+        }
+    }
+
+    public function revokeBadge($slug)
+    {
+        $badge = Badge::where('slug', $slug)->first();
+
+        if ($badge && $this->badges->contains($badge->id)) {
+            $this->badges()->detach($badge->id);
+
+            $currentErrors = session()->get('error', []);
+            if (!is_array($currentErrors))
+                $currentErrors = [$currentErrors];
+
+            session()->flash('error', "Badge PERDU : {$badge->name} (Condition plus remplie).");
         }
     }
 }

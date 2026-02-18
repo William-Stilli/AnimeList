@@ -9,6 +9,7 @@ use App\Jobs\FetchAnimeData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AnimeController extends Controller
 {
@@ -34,7 +35,7 @@ class AnimeController extends Controller
 
             $anime = new Anime([
                 'mal_id' => $apiData['mal_id'],
-                'title' => $apiData['title'],
+                'title' => $apiData['title_english'] ?? $apiData['title'],
                 'image_url' => $apiData['images']['jpg']['large_image_url'],
                 'episodes' => $apiData['episodes'],
                 'score' => $apiData['score'],
@@ -45,6 +46,8 @@ class AnimeController extends Controller
 
             $anime->is_saved = false;
         }
+
+        Log::info("VISITE ANIMÉ : {$anime->title} | ID MAL: {$anime->mal_id} | Épisodes: " . ($anime->episodes ?? 'Inconnu/Infini'));
 
         return Inertia::render('AnimeDetails', [
             'anime' => $anime
@@ -90,6 +93,7 @@ class AnimeController extends Controller
         return $request->user()
             ->animes()
             ->with('genres')
+            ->orderByPivot('is_stu', 'desc')
             ->orderByPivot('updated_at', 'desc')
             ->get();
     }
@@ -244,6 +248,7 @@ class AnimeController extends Controller
     {
         $animes = $user->animes()
             ->with('genres')
+            ->orderByPivot('is_stu', 'desc')
             ->orderByPivot('updated_at', 'desc')
             ->get();
 
@@ -274,18 +279,19 @@ class AnimeController extends Controller
         $filters = $request->only(['search']);
 
         if ($request->filled('search')) {
+            $searchTerm = rawurlencode($request->input('search'));
+
             $response = Http::withoutVerifying()
                 ->timeout(10)
-                ->get('https://api.jikan.moe/v4/anime', [
-                    'q' => $request->input('search'),
-                    'sfw' => true,
-                    'limit' => 24,
-                    'order_by' => 'popularity',
-                    'sort' => 'asc'
-                ]);
+                ->get("https://api.jikan.moe/v4/anime?q={$searchTerm}&sfw=true&limit=24");
 
             if ($response->successful()) {
                 $animes = $response->json('data');
+
+                $animes = array_map(function ($anime) {
+                    $anime['title'] = $anime['title_english'] ?? $anime['title'];
+                    return $anime;
+                }, $animes);
             }
         }
 
@@ -293,5 +299,26 @@ class AnimeController extends Controller
             'animes' => $animes,
             'filters' => $filters
         ]);
+    }
+
+    public function toggleStuCategorie(Request $request, Anime $anime)
+    {
+        $user = $request->user();
+
+        $currentEntry = $user->animes()->where('animes.id', $anime->id)->first();
+        $isCurrentlyStu = $currentEntry->pivot->is_stu;
+
+        if ($isCurrentlyStu) {
+            $user->animes()->updateExistingPivot($anime->id, ['is_stu' => false]);
+            return back()->with('success', "{$anime->title} a abdiqué. Le place est libre.");
+        }
+
+        \Illuminate\Support\Facades\DB::table('anime_user')
+            ->where('user_id', $user->id)
+            ->update(['is_stu' => false]);
+
+        $user->animes()->updateExistingPivot($anime->id, ['is_stu' => true]);
+
+        return back()->with('success', "Parfait, {$anime->title} est maintenant ton S.T.U. !");
     }
 }

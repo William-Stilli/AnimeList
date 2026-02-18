@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Trophy, Clock, Tv, Star, Zap } from 'lucide-vue-next';
+import { Play, Trophy, Clock, Tv, Star, Zap, Crown } from 'lucide-vue-next';
 import { useToast } from 'vue-toastification';
 import {
     Tooltip,
@@ -15,10 +15,11 @@ import {
 
 const toast = useToast();
 
-defineProps({
+const props = defineProps({
     watching: Array,
     stats: Object,
     badges: Array,
+    stuAnime: Object,
 })
 
 const page = usePage();
@@ -39,16 +40,39 @@ const levelInfo = computed(() => {
     const progressPercent = Math.min(100, Math.max(0, (xpEarnedInLevel / xpNeededForLevel) * 100));
 
     let title = 'Novice';
-    let color = 'from-green-400 to-emerald-600';
+    let subtitle = 'Niveau 1';
+    let color = 'from-emerald-400 via-green-500 to-teal-600 bg-[length:200%_auto] animate-gradient';
 
-    if (currentLevel >= 50) { title = 'Divinité'; color = 'from-yellow-400 to-red-500'; }
-    else if (currentLevel >= 40) { title = 'Sage'; color = 'from-purple-500 to-indigo-600'; }
-    else if (currentLevel >= 25) { title = 'Otaku'; color = 'from-red-500 to-orange-500'; }
-    else if (currentLevel >= 10) { title = 'Weeb'; color = 'from-blue-400 to-blue-600'; }
+    if (currentLevel >= 75) {
+        title = 'S.T.U.';
+        subtitle = 'Souverain Transcendant Universel';
+        color = 'from-gray-900 via-red-600 to-yellow-500 bg-[length:200%_auto] animate-gradient';
+    }
+    else if (currentLevel >= 50) {
+        title = 'Divinité';
+        subtitle = 'Au-dessus des lois';
+        color = 'from-yellow-300 via-orange-400 to-amber-500 bg-[length:200%_auto] animate-gradient';
+    }
+    else if (currentLevel >= 40) {
+        title = 'Sage';
+        subtitle = 'L\'oracle des animés';
+        color = 'from-indigo-400 via-purple-500 to-fuchsia-500 bg-[length:200%_auto] animate-gradient';
+    }
+    else if (currentLevel >= 25) {
+        title = 'Otaku';
+        subtitle = 'Membre de l\'élite';
+        color = 'from-rose-500 via-red-500 to-orange-500 bg-[length:200%_auto] animate-gradient';
+    }
+    else if (currentLevel >= 10) {
+        title = 'Weeb';
+        subtitle = 'Apprenti culture';
+        color = 'from-blue-400 via-cyan-500 to-sky-500 bg-[length:200%_auto] animate-gradient';
+    }
 
     return {
         level: currentLevel,
         title: title,
+        subtitle: subtitle,
         progress: progressPercent,
         currentXp: xp,
         nextXp: nextLevelReqXp,
@@ -86,15 +110,22 @@ const incrementProgress = (anime: any) => {
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         {{ user.name }}
                     </h1>
-                    <div class="mt-1 flex items-center gap-2">
-                        <span
-                            class="px-2 py-0.5 rounded text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                            Niveau {{ levelInfo.level }}
-                        </span>
-                        <span class="font-black text-transparent bg-clip-text bg-gradient-to-r text-lg"
-                            :class="levelInfo.color">
-                            {{ levelInfo.title }}
-                        </span>
+
+                    <div class="mt-2">
+                        <div class="flex items-baseline gap-2">
+                            <span class="font-black text-3xl text-transparent bg-clip-text bg-gradient-to-r"
+                                :class="levelInfo.color">
+                                {{ levelInfo.title }}
+                            </span>
+                            <span
+                                class="px-2 py-0.5 rounded text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 transform -translate-y-1">
+                                Lvl {{ levelInfo.level }}
+                            </span>
+                        </div>
+
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-widest mt-0.5">
+                            {{ levelInfo.subtitle }}
+                        </p>
                     </div>
                 </div>
 
@@ -118,10 +149,10 @@ const incrementProgress = (anime: any) => {
                 </div>
             </div>
 
-            <div v-if="badges.length > 0"
+            <div v-if="badges!.length > 0"
                 class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
-                    <Trophy class="w-5 h-5 text-yellow-500" /> Mes Badges ({{ badges.length }})
+                    Mes Badges
                 </h2>
 
                 <div class="flex flex-wrap gap-4">
@@ -148,6 +179,34 @@ const incrementProgress = (anime: any) => {
                 </div>
             </div>
 
+            <div v-if="stuAnime" class="mb-8 relative group">
+                <div
+                    class="absolute -inset-1 bg-gradient-to-r from-yellow-600 via-red-600 to-yellow-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 animate-gradient-xy">
+                </div>
+
+                <div class="relative bg-gray-900 rounded-xl p-6 flex items-center gap-6 border border-yellow-500/30">
+                    <div class="relative shrink-0">
+                        <span class="absolute -top-6 -left-4 text-6xl z-10 filter drop-shadow-lg transform -rotate-12">
+                            <Crown></Crown>
+                        </span>
+                        <img :src="stuAnime.image_url"
+                            class="w-24 h-36 object-cover rounded-lg shadow-2xl border-2 border-yellow-500">
+                    </div>
+
+                    <div class="flex-1">
+                        <h2 class="text-yellow-500 font-black tracking-[0.2em] text-sm uppercase mb-1">Catégorie S.T.U.
+                        </h2>
+                        <h1 class="text-3xl font-bold text-white mb-2">{{ stuAnime.title }}</h1>
+                        <p class="text-gray-400 italic">"La saison/film au dessus des autres"</p>
+                    </div>
+
+                    <Link :href="route('animes.show', stuAnime.mal_id)"
+                        class="px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-lg transition">
+                        Voir le Trône
+                    </Link>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card class="hover:shadow-md transition-shadow">
                     <CardContent class="flex items-center gap-4 p-6">
@@ -155,8 +214,8 @@ const incrementProgress = (anime: any) => {
                             <Tv class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Épisodes Vus</p>
-                            <h3 class="text-2xl font-bold">{{ stats.episodes }}</h3>
+                            <p class="text-sm font-medium text-gray-500">Épisodes vus</p>
+                            <h3 class="text-2xl font-bold">{{ stats!.episodes }}</h3>
                         </div>
                     </CardContent>
                 </Card>
@@ -168,7 +227,7 @@ const incrementProgress = (anime: any) => {
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500">Temps total</p>
-                            <h3 class="text-2xl font-bold">{{ stats.time_spent }}</h3>
+                            <h3 class="text-2xl font-bold">{{ stats!.time_spent }}</h3>
                         </div>
                     </CardContent>
                 </Card>
@@ -179,14 +238,14 @@ const incrementProgress = (anime: any) => {
                             <Trophy class="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Complétés</p>
-                            <h3 class="text-2xl font-bold">{{ stats.completed_count }}</h3>
+                            <p class="text-sm font-medium text-gray-500">Saisons/films complétés</p>
+                            <h3 class="text-2xl font-bold">{{ stats!.completed_count }}</h3>
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
-            <div v-if="watching.length > 0">
+            <div v-if="watching!.length > 0">
                 <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-gray-800 dark:text-gray-100">
                     En cours
                 </h2>
@@ -242,7 +301,6 @@ const incrementProgress = (anime: any) => {
 
             <div v-else
                 class="text-center py-16 bg-gray-50 dark:bg-gray-800/30 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700">
-                <div class="text-5xl mb-4">💤</div>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Zone Vide</h3>
                 <p class="text-gray-500 mb-6">Ajoute un animé pour commencer à farmer ton XP !</p>
                 <Link :href="route('library')">

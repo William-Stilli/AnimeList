@@ -42,6 +42,8 @@ class FetchAnimeData implements ShouldQueue
             if ($response->successful()) {
                 $data = $response->json()['data'];
 
+                $preferredTitle = $data['title_english'] ?? $data['title'];
+
                 $durationStr = $data['duration'] ?? '';
                 $durationMinutes = 24;
 
@@ -58,6 +60,7 @@ class FetchAnimeData implements ShouldQueue
                 }
 
                 $this->anime->update([
+                    'title' => $preferredTitle,
                     'synopsis' => $data['synopsis'] ?? null,
                     'title_english' => $data['title_english'] ?? null,
                     'episodes' => $data['episodes'] ?? null,

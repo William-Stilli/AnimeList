@@ -1,12 +1,13 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed, onMounted, watch } from 'vue';
 import axios, { spread } from 'axios';
 import { useToast } from 'vue-toastification';
 import { useAutoAnimate } from '@formkit/auto-animate/vue'
 import AnimeToast from '@/components/AnimeToast.vue';
 import confetti from 'canvas-confetti';
+import { Crown, Pencil } from 'lucide-vue-next';
 
 const [parent] = useAutoAnimate()
 const toast = useToast();
@@ -236,42 +237,66 @@ const changeCover = async (newUrl) => {
 
                         <div v-if="filteredAnimes.length > 0" ref="parent"
                             class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                            <div v-for="anime in filteredAnimes" :key="anime.id"
-                                @click="router.visit(route('animes.show', anime.mal_id))"
-                                @contextmenu.prevent="openEditModal(anime)"
-                                class="cursor-pointer group border rounded-lg overflow-hidden shadow hover:shadow-lg transition flex flex-col h-full bg-white relative">
-                                <div class="h-48 overflow-hidden bg-gray-200 relative">
+                            <Link v-for="anime in filteredAnimes" :key="anime.id"
+                                :href="route('animes.show', anime.mal_id)" @contextmenu.prevent="openEditModal(anime)"
+                                class="relative group rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col cursor-pointer"
+                                :class="anime.pivot.is_stu
+                                    ? 'bg-gray-50 ring-4 ring-yellow-500 shadow-2xl shadow-yellow-500/20 scale-[1.02] z-10'
+                                    : 'bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700'"
+                                title="Clic gauche: Détails | Clic droit: Modifier">
+                                <div class="block relative aspect-[2/3] overflow-hidden bg-gray-200">
                                     <img :src="anime.image_url" :alt="anime.title"
-                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+
+                                    <div v-if="anime.pivot.is_stu"
+                                        class="absolute top-0 left-0 w-full z-20 bg-gradient-to-b from-black/90 via-black/60 to-transparent pt-3 pb-6">
+                                        <div
+                                            class="flex items-center gap-2 justify-center text-yellow-400 font-black tracking-widest text-xs uppercase drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                                            <Crown class="w-4 h-4 fill-current animate-pulse" /> S.T.U.
+                                        </div>
+                                    </div>
+
+                                    <div v-if="anime.pivot.score > 0"
+                                        class="absolute top-2 right-2 bg-black/70 backdrop-blur-md text-white font-bold px-2 py-1 rounded-lg text-xs border border-white/10 z-10">
+                                        <span class="text-yellow-400">★</span> {{ anime.pivot.score }}
+                                    </div>
+
                                     <div
-                                        class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center">
-                                        <span
-                                            class="text-white opacity-0 group-hover:opacity-100 font-bold bg-black/50 px-3 py-1 rounded-full text-sm">Click
-                                            droit pour modifier</span>
+                                        class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity">
                                     </div>
                                 </div>
 
-                                <div class="p-3 flex flex-col flex-grow justify-between">
-                                    <div class="flex flex-wrap gap-1 mb-1 h-5 overflow-hidden">
-                                        <span v-for="g in anime.genres?.slice(0, 3)" :key="g.id"
-                                            class="text-[10px] uppercase font-bold text-gray-400 bg-gray-50 px-1 rounded">
+                                <div class="p-4 flex flex-col flex-1 gap-2">
+
+                                    <h3 class="font-bold truncate text-base"
+                                        :class="anime.pivot.is_stu ? 'text-yellow-600' : 'text-gray-900 dark:text-white'">
+                                        {{ anime.title }}
+                                    </h3>
+
+                                    <div class="flex flex-wrap gap-1 opacity-70">
+                                        <span v-for="g in anime.genres?.slice(0, 2)" :key="g.id"
+                                            class="text-[10px] bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-600 dark:text-gray-300">
                                             {{ g.name }}
                                         </span>
                                     </div>
 
-                                    <h3 class="font-bold truncate text-sm mb-2">{{ anime.title }}</h3>
-                                    <div class="flex justify-between items-center mt-auto">
-                                        <span
-                                            class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 font-medium border">{{
-                                                statusLabel(anime.pivot.status) }}</span>
-                                        <span class="text-xs text-gray-500 font-mono">Ep. {{ anime.pivot.progress
-                                            }}</span>
+                                    <div class="mt-auto pt-2">
+                                        <div
+                                            class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1 font-mono">
+                                            <span>Ep {{ anime.pivot.progress }}</span>
+                                            <span>{{ anime.episodes ? '/ ' + anime.episodes : '?' }}</span>
+                                        </div>
+
+                                        <div
+                                            class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                                            <div class="h-full rounded-full transition-all duration-500"
+                                                :class="anime.pivot.status === 'completed' ? 'bg-green-500' : (anime.pivot.is_stu ? 'bg-yellow-500' : 'bg-blue-600')"
+                                                :style="{ width: anime.episodes ? (anime.pivot.progress / anime.episodes * 100) + '%' : '100%' }">
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div v-if="anime.pivot.score" class="text-xs text-yellow-600 font-bold mt-1">★
-                                        {{
-                                            anime.pivot.score }}/10</div>
                                 </div>
-                            </div>
+                            </Link>
                         </div>
 
                         <div v-else class="text-center py-10 text-gray-500 italic">
@@ -333,10 +358,12 @@ const changeCover = async (newUrl) => {
                             <label class="block text-sm font-bold text-gray-700 mb-1">Épisodes vus</label>
                             <div class="flex items-center">
                                 <input type="number" v-model="form.progress" min="0"
+                                    :max="editingAnime?.episodes || null"
                                     class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5">
-                                <span class="ml-2 text-gray-500 text-sm font-mono whitespace-nowrap"
-                                    v-if="editingAnime?.episodes">/
-                                    {{ editingAnime.episodes }}</span>
+
+                                <span class="ml-2 text-gray-500 text-sm font-mono whitespace-nowrap">
+                                    / {{ editingAnime?.episodes ? editingAnime.episodes : '?' }}
+                                </span>
                             </div>
                         </div>
 
