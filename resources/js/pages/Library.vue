@@ -2,18 +2,17 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed, onMounted, watch } from 'vue';
-import axios, { spread } from 'axios';
+import axios from 'axios';
 import { useToast } from 'vue-toastification';
 import { useAutoAnimate } from '@formkit/auto-animate/vue'
 import AnimeToast from '@/components/AnimeToast.vue';
 import confetti from 'canvas-confetti';
-import { Crown, Pencil } from 'lucide-vue-next';
+import { Crown, Pencil, Trash2, RotateCcw } from 'lucide-vue-next';
 
 const [parent] = useAutoAnimate()
 const toast = useToast();
 
 const searchQuery = ref('');
-
 const animes = ref([]);
 const currentTab = ref('all');
 const tabs = [
@@ -26,20 +25,24 @@ const tabs = [
 
 const isModalOpen = ref(false);
 const editingAnime = ref(null);
+
+// Formulaire étendu avec les champs d'image
 const form = ref({
     status: '',
     progress: 0,
-    score: 0
+    score: 0,
+    selected_image_url: null, // Nouvelle URL choisie
+    reset_image: false        // Demande de reset
 });
+
+const galleryImages = ref([]);
+const isLoadingGallery = ref(false);
 
 watch(() => form.value.status, (newStatus) => {
     if (newStatus === 'completed' && editingAnime.value?.episodes) {
         form.value.progress = editingAnime.value.episodes;
     }
 });
-
-const galleryImages = ref([]);
-const isLoadingGallery = ref(false);
 
 onMounted(async () => {
     refreshLibrary();
@@ -50,8 +53,24 @@ const refreshLibrary = async () => {
         const response = await axios.get('/my-animes');
         animes.value = response.data;
     } catch (error) {
-        console.error("Erreur:", error);
+        console.error("Erreur chargement bibliothèque:", error);
     }
+};
+
+// --- LOGIQUE D'AFFICHAGE DES IMAGES ---
+const getCoverImage = (anime) => {
+    // 1. On regarde dans le pivot (données perso)
+    const customPath = anime.pivot?.custom_image_path;
+
+    if (customPath) {
+        // Si c'est une URL (choisie dans la galerie)
+        if (customPath.startsWith('http')) return customPath;
+        // Si c'est un fichier uploadé (ancien système)
+        return '/storage/' + customPath;
+    }
+
+    // 2. Sinon image par défaut Jikan
+    return anime.image_url;
 };
 
 const filteredAnimes = computed(() => {
@@ -64,20 +83,21 @@ const filteredAnimes = computed(() => {
     return result
 });
 
-const statusLabel = (status) => {
-    const map = { watching: 'En cours', completed: 'Fini', plan_to_watch: 'À voir', dropped: 'Stop' };
-    return map[status] || status;
-};
-
 const openEditModal = async (anime) => {
     editingAnime.value = anime;
+
+    // On initialise le formulaire avec les valeurs actuelles
     form.value = {
         status: anime.pivot.status,
         progress: anime.pivot.progress,
-        score: anime.pivot.score
+        score: anime.pivot.score,
+        selected_image_url: null, // Reset de la sélection temporaire
+        reset_image: false
     };
+
     isModalOpen.value = true;
 
+    // Chargement de la galerie
     galleryImages.value = [];
     isLoadingGallery.value = true;
 
@@ -89,12 +109,9 @@ const openEditModal = async (anime) => {
     try {
         const url = `https://api.jikan.moe/v4/anime/${anime.mal_id}/pictures`;
         const response = await axios.get(url);
-
-
         galleryImages.value = response.data.data;
-
     } catch (error) {
-        console.error("ERREUR APPEL API :", error);
+        console.error("ERREUR APPEL API JIKAN :", error);
     } finally {
         isLoadingGallery.value = false;
     }
@@ -103,6 +120,20 @@ const openEditModal = async (anime) => {
 const closeModal = () => {
     isModalOpen.value = false;
     editingAnime.value = null;
+};
+
+// Sélectionner une image dans la galerie (sans sauvegarder encore)
+const selectCover = (url) => {
+    form.value.selected_image_url = url;
+    form.value.reset_image = false; // On annule le reset si on choisit une nouvelle image
+    toast.info("Image sélectionnée ! Clique sur Sauvegarder pour valider.");
+};
+
+// Demander le reset de l'image
+const resetCover = () => {
+    form.value.reset_image = true;
+    form.value.selected_image_url = null;
+    toast.info("L'image sera réinitialisée à la sauvegarde.");
 };
 
 const saveChanges = async () => {
@@ -117,38 +148,36 @@ const saveChanges = async () => {
     try {
         await axios.post(`/animes/${editingAnime.value.id}`, {
             ...form.value,
-            _method: 'PUT'
+            _method: 'PUT' // Important pour Laravel
         });
 
+        // Mise à jour locale immédiate pour réactivité
         const index = animes.value.findIndex(a => a.id === editingAnime.value.id);
         if (index !== -1) {
             animes.value[index].pivot.status = form.value.status;
             animes.value[index].pivot.progress = form.value.progress;
             animes.value[index].pivot.score = form.value.score;
+
+            // Mise à jour de l'image locale
+            if (form.value.selected_image_url) {
+                animes.value[index].pivot.custom_image_path = form.value.selected_image_url;
+            } else if (form.value.reset_image) {
+                animes.value[index].pivot.custom_image_path = null;
+            }
         }
 
         if (form.value.status === 'completed') {
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 }
-            })
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } })
         }
 
-        toast.success(
-            {
-                component: AnimeToast,
-                props: {
-                    title: editingAnime.value.title,
-                    image: editingAnime.value.image_url,
-                    message: "Mise à jour réussie"
-                }
-            },
-            {
-                timeout: 3000,
-                icon: false,
+        toast.success({
+            component: AnimeToast,
+            props: {
+                title: editingAnime.value.title,
+                image: getCoverImage(editingAnime.value), // On utilise le helper ici aussi
+                message: "Mise à jour réussie"
             }
-        )
+        }, { timeout: 3000, icon: false });
 
         closeModal();
     } catch (error) {
@@ -159,42 +188,16 @@ const saveChanges = async () => {
 
 const deleteAnime = async () => {
     if (!editingAnime.value) return;
-
-    if (!confirm(`Confirmé la suppression de "${editingAnime.value.title}" de la liste`)) {
-        return;
-    }
+    if (!confirm(`Confirmé la suppression de "${editingAnime.value.title}" de la liste`)) return;
 
     try {
         await axios.delete(`/animes/${editingAnime.value.id}`);
-
         animes.value = animes.value.filter(a => a.id !== editingAnime.value.id);
-
         toast.warning("Animé supprimé!")
-
         closeModal();
     } catch (error) {
         console.error("Impossible de supprimer :", error);
         toast.error("Erreur lors de la suppression.");
-    }
-};
-
-const changeCover = async (newUrl) => {
-    editingAnime.value.image_url = newUrl;
-    const index = animes.value.findIndex(a => a.id === editingAnime.value.id);
-    if (index !== -1) {
-        animes.value[index].image_url = newUrl;
-    }
-
-    try {
-        await axios.post(`/animes/${editingAnime.value.id}`, {
-            ...form.value,
-            image_url: newUrl,
-            _method: 'PUT'
-        });
-        toast.success("Nouvelle couverture appliquée !");
-    } catch (error) {
-        console.error("Erreur lors du changement d'image", error);
-        toast.error("Erreur lors du changement d'image");
     }
 };
 </script>
@@ -228,15 +231,14 @@ const changeCover = async (newUrl) => {
                                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                 </div>
-
-                                <input v-model="searchQuery" type="text"
-                                    placeholder="Filtrer par genre (ex: Sci-fi, Horror)..."
+                                <input v-model="searchQuery" type="text" placeholder="Filtrer par genre..."
                                     class="pl-10 block w-full rounded-full border-gray-300 bg-gray-50 focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition">
                             </div>
                         </div>
 
                         <div v-if="filteredAnimes.length > 0" ref="parent"
                             class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+
                             <Link v-for="anime in filteredAnimes" :key="anime.id"
                                 :href="route('animes.show', anime.mal_id)" @contextmenu.prevent="openEditModal(anime)"
                                 class="relative group rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col cursor-pointer"
@@ -244,8 +246,9 @@ const changeCover = async (newUrl) => {
                                     ? 'bg-gray-50 ring-4 ring-yellow-500 shadow-2xl shadow-yellow-500/20 scale-[1.02] z-10'
                                     : 'bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700'"
                                 title="Clic gauche: Détails | Clic droit: Modifier">
+
                                 <div class="block relative aspect-[2/3] overflow-hidden bg-gray-200">
-                                    <img :src="anime.image_url" :alt="anime.title"
+                                    <img :src="getCoverImage(anime)" :alt="anime.title"
                                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
 
                                     <div v-if="anime.pivot.is_stu"
@@ -267,7 +270,6 @@ const changeCover = async (newUrl) => {
                                 </div>
 
                                 <div class="p-4 flex flex-col flex-1 gap-2">
-
                                     <h3 class="font-bold truncate text-base"
                                         :class="anime.pivot.is_stu ? 'text-yellow-600' : 'text-gray-900 dark:text-white'">
                                         {{ anime.title }}
@@ -286,7 +288,6 @@ const changeCover = async (newUrl) => {
                                             <span>Ep {{ anime.pivot.progress }}</span>
                                             <span>{{ anime.episodes ? '/ ' + anime.episodes : '?' }}</span>
                                         </div>
-
                                         <div
                                             class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
                                             <div class="h-full rounded-full transition-all duration-500"
@@ -310,30 +311,50 @@ const changeCover = async (newUrl) => {
         <div v-if="isModalOpen"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm">
             <div
-                class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-gray-100">
+                class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-gray-100 flex flex-col max-h-[90vh]">
 
-                <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
                     <h3 class="font-bold text-lg text-gray-800 truncate pr-4">{{ editingAnime?.title }}</h3>
                     <button @click="closeModal"
                         class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
                 </div>
 
-                <div class="p-6 space-y-5">
+                <div class="p-6 space-y-5 overflow-y-auto custom-scrollbar">
+
                     <div>
-                        <h4 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
-                            Galerie Officielle
-                            <span v-if="isLoadingGallery"
-                                class="text-xs font-normal text-gray-400 animate-pulse">(Chargement...)</span>
-                        </h4>
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-gray-700 flex items-center gap-2">
+                                Galerie & Couverture
+                                <span v-if="isLoadingGallery"
+                                    class="text-xs font-normal text-gray-400 animate-pulse">(Chargement...)</span>
+                            </h4>
+
+                            <button v-if="editingAnime?.pivot?.custom_image_path || form.selected_image_url"
+                                @click="resetCover" type="button"
+                                class="text-xs text-red-500 flex items-center gap-1 hover:underline"
+                                title="Revenir à l'image par défaut">
+                                <RotateCcw class="w-3 h-3" /> Reset
+                            </button>
+                        </div>
+
+                        <div v-if="form.selected_image_url"
+                            class="mb-3 p-2 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+                            <img :src="form.selected_image_url" class="h-12 w-8 object-cover rounded shadow" />
+                            <div class="text-xs text-green-700 font-medium">Image sélectionnée <br>(Sauvegarde requise)
+                            </div>
+                        </div>
+                        <div v-else-if="form.reset_image"
+                            class="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-700">
+                            🔄 L'image sera réinitialisée à la sauvegarde.
+                        </div>
 
                         <div v-if="galleryImages.length > 0"
                             class="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
                             <div v-for="(img, index) in galleryImages" :key="index"
-                                class="relative group cursor-pointer" @click="changeCover(img.jpg.image_url)"> <img
-                                    :src="img.jpg.image_url"
-                                    class="w-full h-24 object-cover rounded-md border border-gray-200 hover:scale-105 transition duration-300">
-                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition rounded-md">
-                                </div>
+                                class="relative group cursor-pointer" @click="selectCover(img.jpg.image_url)">
+                                <img :src="img.jpg.image_url"
+                                    class="w-full h-24 object-cover rounded-md border border-gray-200 hover:scale-105 hover:border-blue-500 hover:ring-2 hover:ring-blue-300 transition duration-300"
+                                    :class="form.selected_image_url === img.jpg.image_url ? 'ring-2 ring-green-500 border-green-500' : ''">
                             </div>
                         </div>
 
@@ -360,7 +381,6 @@ const changeCover = async (newUrl) => {
                                 <input type="number" v-model="form.progress" min="0"
                                     :max="editingAnime?.episodes || null"
                                     class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5">
-
                                 <span class="ml-2 text-gray-500 text-sm font-mono whitespace-nowrap">
                                     / {{ editingAnime?.episodes ? editingAnime.episodes : '?' }}
                                 </span>
@@ -373,14 +393,12 @@ const changeCover = async (newUrl) => {
                                 class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5">
                         </div>
                     </div>
-
                 </div>
 
-                <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-t border-gray-100">
-
+                <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-t border-gray-100 shrink-0">
                     <button @click="deleteAnime"
-                        class="text-red-600 hover:text-red-800 text-sm font-bold hover:underline transition">
-                        Supprimer
+                        class="text-red-600 hover:text-red-800 text-sm font-bold hover:underline transition flex items-center gap-1">
+                        <Trash2 class="w-4 h-4" /> Supprimer
                     </button>
 
                     <div class="flex gap-3">

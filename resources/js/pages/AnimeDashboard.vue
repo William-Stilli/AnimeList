@@ -25,6 +25,17 @@ const props = defineProps({
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 
+const getCoverImage = (anime) => {
+    const customPath = anime.pivot?.custom_image_path;
+
+    if (customPath) {
+        if (customPath.startsWith('http')) return customPath;
+        return '/storage/' + customPath;
+    }
+
+    return anime.image_url;
+};
+
 const levelInfo = computed(() => {
     const xp = user.value.xp || 0;
 
@@ -43,7 +54,7 @@ const levelInfo = computed(() => {
     let subtitle = 'Niveau 1';
     let color = 'from-emerald-400 via-green-500 to-teal-600 bg-[length:200%_auto] animate-gradient';
 
-    if (currentLevel >= 75) {
+    if (currentLevel >= 100) {
         title = 'S.T.U.';
         subtitle = 'Souverain Transcendant Universel';
         color = 'from-gray-900 via-red-600 to-yellow-500 bg-[length:200%_auto] animate-gradient';
@@ -189,7 +200,7 @@ const incrementProgress = (anime: any) => {
                         <span class="absolute -top-6 -left-4 text-6xl z-10 filter drop-shadow-lg transform -rotate-12">
                             <Crown></Crown>
                         </span>
-                        <img :src="stuAnime.image_url"
+                        <img :src="getCoverImage(stuAnime)"
                             class="w-24 h-36 object-cover rounded-lg shadow-2xl border-2 border-yellow-500">
                     </div>
 
@@ -256,7 +267,7 @@ const incrementProgress = (anime: any) => {
                             class="relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
 
                             <div class="aspect-video relative">
-                                <img :src="anime.image_url"
+                                <img :src="getCoverImage(anime)"
                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                 <div
                                     class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur-sm border border-white/10">

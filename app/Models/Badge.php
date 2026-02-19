@@ -14,7 +14,15 @@ class Badge extends Model
         'slug',
         'description',
         'icon',
+        'color',
         'xp_bonus',
+        'condition_type',
+        'condition_value',
+        'metadata'
+    ];
+
+    protected $casts = [
+        'metadata' => 'array',
     ];
 
     public function users()

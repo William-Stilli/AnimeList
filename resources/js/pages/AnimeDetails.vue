@@ -19,6 +19,10 @@ const jikanData = ref(null);
 const loading = ref(true);
 const isEditing = ref(false);
 
+const availableImages = ref([]);
+const isLoadingImages = ref(false);
+const showGallery = ref(false);
+
 const recommendations = ref([]);
 const loadingRecommendations = ref(false);
 const showRecommendations = ref(false);
@@ -46,6 +50,7 @@ const fetchRecommendations = async () => {
 const myData = computed(() => {
     return props.anime.users?.length > 0 ? props.anime.users[0].pivot : null;
 });
+
 
 const goBack = () => {
     if (window.history.length > 1) {

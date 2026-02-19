@@ -10,9 +10,15 @@ return new class extends Migration {
         Schema::create('badges', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
+            $table->string('slug')->nullable();
             $table->string('description');
             $table->string('icon')->nullable();
+
+            $table->string('color')->default('gray');
+            $table->string('condition_type')->default('manual');
+            $table->integer('condition_value')->default(0);
+            $table->json('metadata')->nullable();
+
             $table->integer('xp_bonus')->default(0);
             $table->timestamps();
         });

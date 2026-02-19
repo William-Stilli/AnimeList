@@ -16,8 +16,9 @@ class DashboardController extends Controller
 
         $watching = $user->animes()
             ->wherePivot('status', 'watching')
+            ->withPivot(['progress', 'score', 'custom_image_path'])
             ->orderByPivot('updated_at', 'desc')
-            ->take(4)
+            ->take(5)
             ->get();
 
         $totalEpisodes = $user->animes()->sum('anime_user.progress');

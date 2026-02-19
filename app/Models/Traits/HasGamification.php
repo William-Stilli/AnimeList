@@ -11,7 +11,7 @@ trait HasGamification
         $level = $this->level;
 
         return match (true) {
-            $level >= 75 => 'S.T.U. (Souverain Titanesque Universel)',
+            $level >= 100 => 'S.T.U. (Souverain Titanesque Universel)',
             $level >= 50 => 'Divinité',
             $level >= 40 => 'Sage',
             $level >= 25 => 'Otaku',
@@ -48,47 +48,101 @@ trait HasGamification
 
     public function checkAchievements($currentAnime = null)
     {
-        $this->load(['animes.genres', 'badges']);
+        $completedAnimes = $this->animes()
+            ->wherePivot('status', 'completed')
+            ->with('genres')
+            ->get();
 
-        $ownedBadgeSlugs = $this->badges->pluck('slug')->toArray();
+        $uniqueFranchises = [];
 
-        $watchedAnimes = $this->animes->filter(fn($a) => $a->pivot->progress > 0);
+        foreach ($completedAnimes as $anime) {
+            $title = $anime->title_english ?? $anime->title;
 
-        $totalMinutes = $watchedAnimes->sum(function ($anime) {
-            $duration = $anime->duration ?? 24;
-            return $anime->pivot->progress * $duration;
-        });
+            $cleanTitle = preg_replace('/(:? Season \d+|:? \d+(st|nd|rd|th) Season|:? Part \d+|:? The Final Season|:? Next Shine)/i', '', $title);
+            $cleanTitle = preg_replace('/(\s-.*)/', '', $cleanTitle);
+            $cleanTitle = preg_replace('/(\s[IVX]+)$/', '', $cleanTitle);
+            $cleanTitle = trim($cleanTitle);
 
-        $genreCounts = [
-            'Drama' => 0,
-            'Shounen' => 0,
-            'Romance' => 0,
-        ];
-
-        foreach ($watchedAnimes as $anime) {
             foreach ($anime->genres as $genre) {
-                foreach ($genreCounts as $key => $count) {
-                    if (stripos($genre->name, $key) !== false) {
-                        $genreCounts[$key]++;
-                    }
-                }
+                $uniqueFranchises[$genre->name][$cleanTitle] = true;
             }
         }
 
-        $rules = [
-            'no-life' => $totalMinutes >= 60000,
-            'drama-queen' => $genreCounts['Drama'] >= 5,
-            'shonen-jumper' => $genreCounts['Shounen'] >= 20,
-            'romcom-enjoyer' => $genreCounts['Romance'] >= 10,
-        ];
+        $userGenreCounts = [];
+        foreach ($uniqueFranchises as $genreName => $franchises) {
+            $userGenreCounts[$genreName] = count($franchises);
+        }
 
-        foreach ($rules as $slug => $isEligible) {
-            $hasBadge = in_array($slug, $ownedBadgeSlugs);
+        $allWatchedAnimes = $this->animes()->get()->filter(function ($anime) {
+            return $anime->pivot->progress > 0 || $anime->pivot->status === 'completed';
+        });
+
+        $totalMinutes = $allWatchedAnimes->sum(function ($anime) {
+            $progress = $anime->pivot->progress;
+            if ($anime->pivot->status === 'completed' && $progress == 0) {
+                $progress = $anime->episodes ?: 1;
+            }
+            $duration = ($anime->duration > 0) ? $anime->duration : 24;
+            return $progress * $duration;
+        });
+
+        $hasWatchedNGNL = $allWatchedAnimes->contains(function ($anime) {
+            $titleEn = $anime->title_english ?? '';
+            $titleJp = $anime->title ?? '';
+
+            $checkTitle = function ($t) {
+                return stripos($t, 'No Game') !== false && stripos($t, 'No Life') !== false;
+            };
+
+            return $checkTitle($titleEn) || $checkTitle($titleJp);
+        });
+
+        $allBadges = Badge::all();
+        $ownedBadgeIds = $this->badges()->pluck('badges.id')->toArray();
+
+        foreach ($allBadges as $badge) {
+            $isEligible = false;
+
+            if ($badge->condition_type === 'genre_count') {
+                $meta = json_decode($badge->metadata, true);
+                $targetGenre = $meta['genre_name'] ?? null;
+
+                if ($targetGenre && isset($userGenreCounts[$targetGenre])) {
+                    if ($userGenreCounts[$targetGenre] >= $badge->condition_value) {
+                        $isEligible = true;
+                    }
+                }
+            } else {
+                $lowerName = strtolower($badge->name);
+                $isNoLifeBadge = ($lowerName === 'no-life' || $lowerName === 'no life');
+                $isNGNLBadge = ($lowerName === 'no game no life');
+
+                if ($isNoLifeBadge || $isNGNLBadge) {
+
+                    $hasEnoughTime = $totalMinutes >= 60000;
+
+                    if ($hasEnoughTime) {
+                        if ($hasWatchedNGNL && $isNGNLBadge) {
+                            $isEligible = true;
+                        } elseif (!$hasWatchedNGNL && $isNoLifeBadge) {
+                            $isEligible = true;
+                        }
+                    }
+                }
+            }
+
+            $hasBadge = in_array($badge->id, $ownedBadgeIds);
 
             if ($isEligible && !$hasBadge) {
-                $this->unlockBadge($slug);
+                $this->badges()->attach($badge->id, ['unlocked_at' => now()]);
+                if (!app()->runningInConsole()) {
+                    session()->push('success', "Nouveau Badge débloqué : {$badge->name} !");
+                }
             } elseif (!$isEligible && $hasBadge) {
-                $this->revokeBadge($slug);
+                $this->badges()->detach($badge->id);
+                if (!app()->runningInConsole()) {
+                    session()->push('info', "Badge perdu : {$badge->name}");
+                }
             }
         }
     }

@@ -21,8 +21,9 @@ class AnimeController extends Controller
             $anime->load([
                 'users' => function ($query) use ($request) {
                     $query->where('users.id', $request->user()->id)
-                        ->withPivot('status', 'score', 'progress', 'rank', 'review');
-                }
+                        ->withPivot('status', 'score', 'progress', 'rank', 'review', 'is_stu', 'custom_image_path');
+                },
+                'genres'
             ]);
         } else {
             $response = Http::withoutVerifying()->get("https://api.jikan.moe/v4/anime/{$id}");
@@ -33,6 +34,8 @@ class AnimeController extends Controller
 
             $apiData = $response->json('data');
 
+            $durationInMinutes = $this->parseDuration($apiData['duration'] ?? '');
+
             $anime = new Anime([
                 'mal_id' => $apiData['mal_id'],
                 'title' => $apiData['title_english'] ?? $apiData['title'],
@@ -42,16 +45,34 @@ class AnimeController extends Controller
                 'type' => $apiData['type'],
                 'year' => $apiData['year'] ?? null,
                 'synopsis' => $apiData['synopsis'] ?? '',
+                'duration' => $durationInMinutes,
             ]);
 
             $anime->is_saved = false;
         }
 
-        Log::info("VISITE ANIMÉ : {$anime->title} | ID MAL: {$anime->mal_id} | Épisodes: " . ($anime->episodes ?? 'Inconnu/Infini'));
-
         return Inertia::render('AnimeDetails', [
             'anime' => $anime
         ]);
+    }
+
+    private function parseDuration(?string $durationString): int
+    {
+        if (!$durationString || $durationString === 'Unknown') {
+            return 24;
+        }
+
+        $minutes = 0;
+
+        if (preg_match('/(\d+)\s*hr/', $durationString, $hours)) {
+            $minutes += (int) $hours[1] * 60;
+        }
+
+        if (preg_match('/(\d+)\s*min/', $durationString, $mins)) {
+            $minutes += (int) $mins[1];
+        }
+
+        return $minutes > 0 ? $minutes : 24;
     }
 
     public function store(Request $request)
@@ -92,6 +113,14 @@ class AnimeController extends Controller
     {
         return $request->user()
             ->animes()
+            ->withPivot([
+                'status',
+                'progress',
+                'score',
+                'is_stu',
+                'updated_at',
+                'custom_image_path'
+            ])
             ->with('genres')
             ->orderByPivot('is_stu', 'desc')
             ->orderByPivot('updated_at', 'desc')
@@ -105,8 +134,8 @@ class AnimeController extends Controller
             'progress' => 'sometimes|integer|min:0',
             'score' => 'sometimes|integer|min:0|max:10',
             'rank' => 'sometimes|nullable|integer',
-            'image_url' => 'sometimes|string',
             'review' => 'nullable|string|max:5000',
+            'selected_image_url' => 'nullable|url',
         ]);
 
         $user = $request->user();
@@ -143,6 +172,16 @@ class AnimeController extends Controller
             }
         }
 
+        if (!empty($validated['selected_image_url'])) {
+            $pivotData['custom_image_path'] = $validated['selected_image_url'];
+            $message .= " Image de couverture modifiée !";
+        }
+
+        if ($request->boolean('reset_image')) {
+            $pivotData['custom_image_path'] = null;
+            $message .= " Image rétablie par défaut.";
+        }
+
         $newProgress = $pivotData['progress'] ?? $currentPivot->progress;
         $oldProgress = $currentPivot->progress;
 
@@ -164,13 +203,16 @@ class AnimeController extends Controller
             $message = "Statut corrigé.";
         }
 
+        if ($request->hasFile('custom_image')) {
+            $path = $request->file('custom_image')->store('covers', 'public');
+            $pivotData['custom_image_path'] = $path;
+            $message .= " Image perso ajoutée !";
+        }
+
         if (!empty($pivotData)) {
             $user->animes()->updateExistingPivot($anime->id, $pivotData);
         }
 
-        if (isset($validated['image_url'])) {
-            $anime->update(['image_url' => $validated['image_url']]);
-        }
 
         if ($xpChange !== 0) {
             $currentXp = $user->xp;
@@ -179,7 +221,6 @@ class AnimeController extends Controller
             $user->update(['xp' => $newXp]);
 
             if ($xpChange > 0) {
-                $leveledUp = false;
                 if (method_exists($user, 'checkAchievements')) {
                     $user->checkAchievements($anime);
                 }
