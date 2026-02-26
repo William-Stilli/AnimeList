@@ -38,7 +38,7 @@ Tu veux lancer la bête chez toi ? Suis le guide :
 
 1.  **Cloner le dépôt :**
     ```bash
-    git clone [https://github.com/William-Stilli/AnimeList.git](https://github.com/William-Stilli/AnimeList.git)
+    git clone https://github.com/William-Stilli/AnimeList.git
     cd AnimeList
     ```
 
