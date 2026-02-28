@@ -28,10 +28,22 @@ const pieData = computed(() => {
         watching: '#3B82F6',
         completed: '#10B981',
         plan_to_watch: '#9CA3AF',
-        dropped: '#EF4444'
+        dropped: '#EF4444',
+        on_hold: '#F59E0B'
     };
 
-    const labels = props.statusData.map(d => d.status);
+    const formatLabel = (status) => {
+        const map = {
+            'watching': 'En cours',
+            'completed': 'Terminé',
+            'plan_to_watch': 'À voir',
+            'dropped': 'Abandonné',
+            'on_hold': 'En pause'
+        };
+        return map[status] || status;
+    };
+
+    const labels = props.statusData.map(d => formatLabel(d.status));
     const data = props.statusData.map(d => d.total);
     const backgroundColor = props.statusData.map(d => statusColors[d.status] || '#000');
 
@@ -55,7 +67,6 @@ const pieOptions = {
 const barData = computed(() => {
     const allScores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const dataMap = {};
-
     props.scoreData.forEach(item => {
         dataMap[item.score] = item.total;
     });
@@ -63,10 +74,11 @@ const barData = computed(() => {
     return {
         labels: allScores,
         datasets: [{
-            label: 'Nombre d\'animés',
-            backgroundColor: '#F59E0B',
+            label: 'Animés',
+            backgroundColor: '#8B5CF6',
             data: allScores.map(score => dataMap[score] || 0),
-            borderRadius: 4
+            borderRadius: 4,
+            barPercentage: 0.7
         }]
     };
 });
@@ -75,34 +87,72 @@ const barOptions = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-        y: { beginAtZero: true, ticks: { stepSize: 1 } }
-    }
+        y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f3f4f6' } },
+        x: { grid: { display: false } }
+    },
+    plugins: { legend: { display: false } }
 };
 
+const dynamicChartHeight = computed(() => {
+    const minHeight = 400;
+    const calculatedHeight = props.genreData.length * 35; 
+    return Math.max(minHeight, calculatedHeight);
+});
+
 const genreChartData = computed(() => {
+    const sortedGenres = [...props.genreData].sort((a, b) => b.total - a.total);
+
+    const backgroundColors = [
+        '#FF6384', // Rouge Rosé
+        '#36A2EB', // Bleu Ciel
+        '#FFCE56', // Jaune
+        '#4BC0C0', // Turquoise
+        '#9966FF', // Violet
+        '#FF9F40', // Orange
+        '#C9CBCF', // Gris
+        '#E7E9ED', // Gris clair
+        '#76A346', // Vert Olive
+        '#D36E70', // Rouge pâle
+        '#8B5CF6', // Violet Intense
+        '#EC4899', // Rose Bonbon
+        '#10B981', // Vert Emeraude
+        '#F59E0B', // Ambre
+        '#6366F1'  // Indigo
+    ];
+
     return {
-        labels: props.genreData.map(d => d.name),
+        labels: sortedGenres.map(d => d.name),
         datasets: [{
-            data: props.genreData.map(d => d.total),
-            backgroundColor: [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#FFCD56', "#F4CBC6", "#C0A9B0", '#001514', '#FFA0FD'
-            ],
-            borderWidth: 1
+            label: 'Animés vus',
+            data: sortedGenres.map(d => d.total),
+            backgroundColor: backgroundColors, 
+            borderRadius: 4,
+            barThickness: 20,
         }]
     };
 });
 
 const genreOptions = {
+    indexAxis: 'y', 
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-        legend: { position: 'right' }
+        legend: { display: false },
+        tooltip: {
+            callbacks: { label: (c) => ` ${c.raw} animés` }
+        }
+    },
+    scales: {
+        x: { beginAtZero: true, grid: { color: '#f3f4f6' }, position: 'top' },
+        y: { 
+            grid: { display: false },
+            ticks: { autoSkip: false } 
+        }
     }
 };
 </script>
 
 <template>
-
     <Head title="Mes Statistiques" />
 
     <AppLayout>
@@ -111,41 +161,44 @@ const genreOptions = {
         </template>
 
         <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex flex-col">
                         <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">État de la collection</h3>
-                        <div class="h-64 relative">
+                        <div class="h-64 relative w-full">
                             <Pie :data="pieData" :options="pieOptions" />
                         </div>
                     </div>
 
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex flex-col">
                         <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">Distribution des notes</h3>
-                        <div class="h-64 relative">
+                        <div class="h-64 relative w-full">
                             <Bar :data="barData" :options="barOptions" />
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-8 bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 md:col-span-2 lg:col-span-1">
-                    <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">Genres Favoris</h3>
-
-                    <div class="h-64 relative">
-                        <Pie :data="genreChartData" :options="genreOptions" />
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-gray-700">Tous les Genres</h3>
+                        <span class="text-xs font-semibold bg-gray-100 text-gray-500 py-1 px-3 rounded-full">
+                            Total : {{ genreData.length }}
+                        </span>
                     </div>
 
-                    <p v-if="genreData.length === 0" class="text-xs text-center text-gray-400 mt-4">
-                        (Données insuffisantes : Ajoute des nouveaux animés pour voir tes genres !)
+                    <div class="h-96 overflow-y-auto border border-gray-100 rounded-lg pr-2 scrollbar-thin scrollbar-thumb-gray-300">
+                        <div :style="{ height: dynamicChartHeight + 'px', position: 'relative' }">
+                            <Bar :data="genreChartData" :options="genreOptions" />
+                        </div>
+                    </div>
+                    
+                    <p class="text-center text-xs text-gray-400 mt-2">
+                        Scrolle pour voir toute la liste !
                     </p>
-                </div>
 
-                <div class="mt-8 bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 text-center">
-                    <p class="text-gray-600">
-                        Tu as noté <strong>{{scoreData.reduce((acc, curr) => acc + curr.total, 0)}}</strong> animés au
-                        total.
+                    <p v-if="genreData.length === 0" class="text-sm text-center text-gray-400 mt-4">
+                        (Données insuffisantes : Lance la commande "php artisan anime:fix-genres" !)
                     </p>
                 </div>
 
