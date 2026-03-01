@@ -1,11 +1,11 @@
-# Ultimate Anime Tracker
+# Ultimate Anime Tracker 📺
 
 ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![Vue.js](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Inertia](https://img.shields.io/badge/Inertia-9553E9?style=for-the-badge&logo=inertia&logoColor=white)
 
-Une application web moderne pour suivre ta progression d'animés et gérer ta bibliothèque. Plus qu'une simple liste, c'est une expérience gamifiée pour les vrais passionnés.
+> Une application web moderne pour suivre ta progression d'animés et gérer ta bibliothèque. Plus qu'une simple liste, c'est une expérience gamifiée pour les vrais passionnés.
 
 ## Fonctionnalités Principales
 
@@ -21,16 +21,16 @@ Ce projet n'est pas un simple clone de MyAnimeList. C'est une version avec des f
     -   Monte de niveau.
     -   Débloque des **Badges** (Romance Lover, No-Life...).
 -   **Easter Eggs Cachés :**
-    -   Le système analyse ce que tu regardes. Certaines conditions permettent débloquent des badges secrets et uniques.
+    -   Le système analyse ce que tu regardes. Certaines conditions débloquent des badges secrets et uniques.
 -   **Dashboard Statistiques :** Suis ton temps de visionnage total (jours/heures) et ta répartition par genres.
 
 ## Stack Technique
 
--   **Backend :** Laravel 12
+-   **Backend :** Laravel 11 / 12
 -   **Frontend :** Vue 3 (Composition API) + Inertia.js
 -   **Base de données :** SQLite
 -   **Styling :** Tailwind CSS + Shadcn/UI components
--   **API Externe :** Jikan API v4
+-   **Qualité Code :** ESLint, Prettier, TypeScript
 
 ## Installation & Démarrage
 
@@ -38,7 +38,7 @@ Tu veux lancer le projet chez toi ? Suis le guide :
 
 1.  **Cloner le dépôt :**
     ```bash
-    git clone https://github.com/William-Stilli/AnimeList.git
+    git clone [https://github.com/William-Stilli/AnimeList.git](https://github.com/William-Stilli/AnimeList.git)
     cd AnimeList
     ```
 
@@ -57,10 +57,12 @@ Tu veux lancer le projet chez toi ? Suis le guide :
 
 4.  **Préparer la Base de Données :**
     C'est crucial pour que les badges fonctionnent !
+    *(Sur Linux/Mac)* :
     ```bash
-    # Migre et seed la BDD (Crée les badges par défaut)
+    touch database/database.sqlite
     php artisan migrate --seed
     ```
+    *(Sur Windows, créez simplement un fichier vide nommé `database.sqlite` dans le dossier database)*
 
 5.  **Lancer le projet :**
     Tu auras besoin de deux terminaux :
@@ -82,6 +84,12 @@ Tu veux lancer le projet chez toi ? Suis le guide :
     ```bash
     php artisan migrate:fresh --seed
     ```
+
+## Auteur
+
+**William Stilli**
+
+---
 
 ## 📄 Licence
 
