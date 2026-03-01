@@ -18,8 +18,8 @@ Ce projet n'est pas un simple clone de MyAnimeList. C'est une version avec des f
     -   Système robuste qui garde tes préférences même après un refresh.
 -   **Gamification Avancée :**
     -   Gagne de l'**XP** à chaque épisode regardé.
-    -   Monte de niveau (F-Tier à S-Tier God).
-    -   Débloque des **Badges** (Action Hero, Romance Lover, No-Life...).
+    -   Monte de niveau.
+    -   Débloque des **Badges** (Romance Lover, No-Life...).
 -   **Easter Eggs Cachés :**
     -   Le système analyse ce que tu regardes. Certaines conditions permettent débloquent des badges secrets et uniques.
 -   **Dashboard Statistiques :** Suis ton temps de visionnage total (jours/heures) et ta répartition par genres.
@@ -34,7 +34,7 @@ Ce projet n'est pas un simple clone de MyAnimeList. C'est une version avec des f
 
 ## Installation & Démarrage
 
-Tu veux lancer la bête chez toi ? Suis le guide :
+Tu veux lancer le projet chez toi ? Suis le guide :
 
 1.  **Cloner le dépôt :**
     ```bash
@@ -82,10 +82,6 @@ Tu veux lancer la bête chez toi ? Suis le guide :
     ```bash
     php artisan migrate:fresh --seed
     ```
-
-## Contribuer
-
-Les Pull Requests sont les bienvenues. Pour les changements majeurs, ouvre d'abord une issue pour discuter de ce que tu aimerais changer.
 
 ## 📄 Licence
 
