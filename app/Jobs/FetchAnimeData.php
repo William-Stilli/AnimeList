@@ -35,10 +35,9 @@ class FetchAnimeData implements ShouldQueue
     {
         Log::info("JOB DÉMARRÉ : Récupération pour l'ID " . $this->anime->mal_id);
 
-
-
         if ($this->anime->mal_id) {
-            $response = Http::withoutVerifying()->get("https://api.jikan.moe/v4/anime/{$this->anime->mal_id}");
+            $response = Http::withoutVerifying()->timeout(10)->get("https://api.jikan.moe/v4/anime/{$this->anime->mal_id}");
+
             if ($response->successful()) {
                 $data = $response->json()['data'];
 
@@ -72,9 +71,50 @@ class FetchAnimeData implements ShouldQueue
                     'duration' => $durationMinutes,
                 ]);
 
-                if (isset($data['genres'])) {
+                $genres = $data['genres'] ?? [];
+                $themes = $data['themes'] ?? [];
+                $explicit = $data['explicit_genres'] ?? [];
+                $demographics = $data['demographics'] ?? [];
+
+                $allCandidates = array_merge($genres, $themes, $explicit, $demographics);
+
+                $blacklist = [
+                    'Urban Fantasy',
+                    'Strategy Game',
+                    'High Stakes Game',
+                    'Organized Crime',
+                    'Workplace',
+                    'Detective',
+                    'Showbiz',
+                    'Medical',
+                    'Childcare',
+                    'Pets',
+                    'Educational',
+                    'Otaku Culture',
+                    'Idols (Female)',
+                    'Idols (Male)',
+                    'CGDCT',
+                    'Iyashikei',
+                    'Visual Arts',
+                    'Performing Arts',
+                    'Team Sports',
+                    'Combat Sports',
+                    'Love Status Quo',
+                    'Gag Humor',
+                    'Crossdressing',
+                    'Delinquents',
+                    'Adult Cast',
+                    'Anthropomorphic'
+                ];
+
+                if (!empty($allCandidates)) {
                     $genreIds = [];
-                    foreach ($data['genres'] as $genreData) {
+                    foreach ($allCandidates as $genreData) {
+
+                        if (in_array($genreData['name'], $blacklist)) {
+                            continue;
+                        }
+
                         $genre = Genre::firstOrCreate(
                             ['mal_id' => $genreData['mal_id']],
                             ['name' => $genreData['name']]

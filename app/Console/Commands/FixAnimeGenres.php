@@ -28,13 +28,18 @@ class FixAnimeGenres extends Command
         $bar->start();
 
         foreach ($animes as $anime) {
+
+
+
             if (!$anime->mal_id) {
                 $bar->advance();
                 continue;
             }
 
             try {
-                $response = Http::withoutVerifying()->get("https://api.jikan.moe/v4/anime/{$anime->mal_id}");
+                usleep(500000);
+
+                $response = Http::withoutVerifying()->timeout(10)->get("https://api.jikan.moe/v4/anime/{$anime->mal_id}");
 
                 if ($response->successful()) {
                     $data = $response->json()['data'];
@@ -93,8 +98,6 @@ class FixAnimeGenres extends Command
 
                     $anime->genres()->sync($genreIds);
                 }
-
-                usleep(500000);
 
             } catch (\Exception $e) {
                 $this->error("\nErreur pour l'animé ID {$anime->mal_id} : " . $e->getMessage());
