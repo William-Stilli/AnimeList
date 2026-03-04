@@ -55,7 +55,7 @@ class User extends Authenticatable
     public function animes()
     {
         return $this->belongsToMany(Anime::class, 'anime_user')
-            ->withPivot('status', 'score', 'progress', 'review', 'is_stu')
+            ->withPivot('status', 'score', 'progress', 'review', 'is_stu', 'rank')
             ->withTimestamps();
     }
 

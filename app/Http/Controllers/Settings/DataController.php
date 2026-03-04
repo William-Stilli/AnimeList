@@ -33,6 +33,7 @@ class DataController extends Controller
                     'score' => $anime->pivot->score,
                     'progress' => $anime->pivot->progress,
                     'review' => $anime->pivot->review,
+                    'rank' => $anime->pivot->rank,
                     'updated_at' => $anime->pivot->updated_at,
                 ];
             });
@@ -73,6 +74,7 @@ class DataController extends Controller
                         'score' => $entry['score'] ?? 0,
                         'progress' => $entry['progress'] ?? 0,
                         'review' => $entry['review'] ?? null,
+                        'rank' => $entry['rank'] ?? null,
                     ]
                 ]);
             }
