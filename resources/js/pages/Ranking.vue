@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/vue3';
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import AnimeCard from '@/components/AnimeCard.vue';
 
 const props = defineProps({
     animes: {
@@ -106,11 +107,7 @@ const [progressRef, progressAnimes] = useDragAndDrop(progressList, config(null, 
                             En cours / À voir ({{ progressAnimes.length }})
                         </h3>
                         <div ref="progressRef" class="min-h-[100px] flex flex-wrap gap-3">
-                            <div v-for="anime in progressAnimes" :key="anime.id"
-                                class="w-20 cursor-grab hover:scale-105 transition">
-                                <img :src="anime.image_url"
-                                    class="rounded-md shadow w-full h-28 object-cover pointer-events-none">
-                            </div>
+                            <AnimeCard v-for="anime in progressAnimes" :key="anime.id" :anime="anime" class="w-20" />
                         </div>
                     </div>
 
@@ -120,11 +117,8 @@ const [progressRef, progressAnimes] = useDragAndDrop(progressList, config(null, 
                             Abandonnés ({{ droppedAnimes.length }})
                         </h3>
                         <div ref="droppedRef" class="min-h-[100px] flex flex-wrap gap-3">
-                            <div v-for="anime in droppedAnimes" :key="anime.id"
-                                class="w-20 cursor-grab hover:scale-105 transition grayscale hover:grayscale-0">
-                                <img :src="anime.image_url"
-                                    class="rounded-md shadow w-full h-28 object-cover pointer-events-none opacity-70">
-                            </div>
+                            <AnimeCard v-for="anime in droppedAnimes" :key="anime.id" :anime="anime"
+                                class="w-20 grayscale hover:grayscale-0 opacity-75 hover:opacity-100" />
                         </div>
                     </div>
                 </div>
@@ -136,11 +130,8 @@ const [progressRef, progressAnimes] = useDragAndDrop(progressList, config(null, 
                             S
                         </div>
                         <div ref="sRef" class="flex-1 p-4 min-h-[120px] flex flex-wrap gap-3 bg-[#ff7f7f]/20">
-                            <div v-for="anime in sAnimes" :key="anime.id"
-                                class="w-24 cursor-grab active:cursor-grabbing hover:scale-105 transition">
-                                <img :src="anime.image_url"
-                                    class="rounded-md shadow border border-red-200 w-full h-36 object-cover pointer-events-none">
-                            </div>
+                            <AnimeCard v-for="anime in sAnimes" :key="anime.id" :anime="anime"
+                                class="w-24 border-2 border-red-200" />
                         </div>
                     </div>
 
@@ -149,11 +140,8 @@ const [progressRef, progressAnimes] = useDragAndDrop(progressList, config(null, 
                             class="w-24 bg-orange-500 text-white font-black text-4xl flex items-center justify-center shrink-0">
                             A</div>
                         <div ref="aRef" class="flex-1 p-4 min-h-[120px] flex flex-wrap gap-3 bg-[#ffbf7f]/20">
-                            <div v-for="anime in aAnimes" :key="anime.id"
-                                class="w-24 cursor-grab hover:scale-105 transition">
-                                <img :src="anime.image_url"
-                                    class="rounded-md shadow border border-orange-200 w-full h-36 object-cover pointer-events-none">
-                            </div>
+                            <AnimeCard v-for="anime in aAnimes" :key="anime.id" :anime="anime"
+                                class="w-24 border-2 border-orange-200" />
                         </div>
                     </div>
 
@@ -162,11 +150,8 @@ const [progressRef, progressAnimes] = useDragAndDrop(progressList, config(null, 
                             class="w-24 bg-yellow-500 text-white font-black text-4xl flex items-center justify-center shrink-0">
                             B</div>
                         <div ref="bRef" class="flex-1 p-4 min-h-[120px] flex flex-wrap gap-3 bg-[#ffff7f]/20">
-                            <div v-for="anime in bAnimes" :key="anime.id"
-                                class="w-24 cursor-grab hover:scale-105 transition">
-                                <img :src="anime.image_url"
-                                    class="rounded-md shadow border border-yellow-200 w-full h-36 object-cover pointer-events-none">
-                            </div>
+                            <AnimeCard v-for="anime in bAnimes" :key="anime.id" :anime="anime"
+                                class="w-24 border-2 border-yellow-200" />
                         </div>
                     </div>
 
@@ -175,11 +160,8 @@ const [progressRef, progressAnimes] = useDragAndDrop(progressList, config(null, 
                             class="w-24 bg-green-500 text-white font-black text-4xl flex items-center justify-center shrink-0">
                             C</div>
                         <div ref="cRef" class="flex-1 p-4 min-h-[120px] flex flex-wrap gap-3 bg-[#7fff7f]/20">
-                            <div v-for="anime in cAnimes" :key="anime.id"
-                                class="w-24 cursor-grab hover:scale-105 transition">
-                                <img :src="anime.image_url"
-                                    class="rounded-md shadow border border-green-200 w-full h-36 object-cover pointer-events-none">
-                            </div>
+                            <AnimeCard v-for="anime in cAnimes" :key="anime.id" :anime="anime"
+                                class="w-24 border-2 border-green-200" />
                         </div>
                     </div>
                 </div>
@@ -189,14 +171,13 @@ const [progressRef, progressAnimes] = useDragAndDrop(progressList, config(null, 
                         À classer ({{ poolAnimes.length }})
                     </h3>
                     <div ref="poolRef"
-                        class="bg-white p-4 rounded-lg shadow-inner min-h-[150px] flex flex-wrap gap-3 border-2 border-dashed border-gray-300">
-                        <div v-for="anime in poolAnimes" :key="anime.id"
-                            class="w-24 cursor-grab hover:scale-105 transition">
-                            <img :src="anime.image_url"
-                                class="rounded-md shadow w-full h-36 object-cover pointer-events-none opacity-90 hover:opacity-100">
-                        </div>
-                        <div v-if="poolAnimes.length === 0" class="w-full text-center text-gray-400 italic py-10">
-                            Tout est classé!
+                        class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-10 gap-4 p-4 bg-white rounded-lg shadow-inner min-h-[150px] border-2 border-dashed border-gray-300">
+
+                        <AnimeCard v-for="anime in poolAnimes" :key="anime.id" :anime="anime" class="w-full" />
+
+                        <div v-if="poolAnimes.length === 0"
+                            class="col-span-full text-center text-gray-400 italic py-10">
+                            Tout est classé !
                         </div>
                     </div>
                 </div>
