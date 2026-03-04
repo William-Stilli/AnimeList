@@ -4,10 +4,23 @@ import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { Crown } from 'lucide-vue-next';
 
+import * as LucideIcons from 'lucide-vue-next';
+
 const props = defineProps({
     animes: Array,
     targetUser: Object
 });
+
+const getIconComponent = (iconName) => {
+    if (!iconName) return LucideIcons.HelpCircle
+
+    const pascalName = iconName
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join('');
+
+    return LucideIcons[pascalName] || LucideIcons.HelpCircle;
+};
 
 const searchQuery = ref('');
 const currentTab = ref('all');
@@ -89,7 +102,7 @@ const filteredAnimes = computed(() => {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10 pb-12">
 
             <div
-                class="bg-white rounded-2xl shadow-md p-4 mb-8 flex flex-col md:flex-row justify-between items-center gap-4 border border-gray-100">
+                class="bg-white rounded-2xl shadow-md p-4 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 border border-gray-100">
                 <div
                     class="flex space-x-1 overflow-x-auto no-scrollbar w-full md:w-auto bg-gray-100/50 p-1 rounded-full">
                     <button v-for="tab in tabs" :key="tab.key" @click="currentTab = tab.key" :class="['px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider transition-all duration-300',
@@ -103,6 +116,39 @@ const filteredAnimes = computed(() => {
                 <div class="relative w-full md:w-80 group">
                     <input v-model="searchQuery" type="text" placeholder="Rechercher un titre ou un genre..."
                         class="pl-4 block w-full rounded-full border-0 bg-gray-100 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300/50 placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition-all hover:bg-gray-50">
+                </div>
+            </div>
+
+            <div v-if="targetUser.badges && targetUser.badges.length > 0"
+                class="bg-white rounded-2xl shadow-md p-5 mb-8 border border-gray-100">
+                <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4">Badges</h3>
+                <div class="flex flex-wrap gap-4">
+                    <div v-for="badge in targetUser.badges" :key="badge.id"
+                        class="group relative flex flex-col items-center">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 cursor-help bg-gray-900 border-2"
+                            :style="{
+                                borderColor: badge.color || '#4B5563',
+                                color: badge.color || '#9CA3AF',
+                                boxShadow: `0 0 10px ${badge.color || '#4B5563'}50`
+                            }">
+
+                            <component :is="getIconComponent(badge.icon)" class="w-6 h-6 drop-shadow-md"
+                                :stroke-width="2.5" />
+
+                        </div>
+
+                        <div
+                            class="absolute bottom-full mb-3 hidden group-hover:block w-56 bg-gray-900 text-white text-xs p-3 rounded-xl shadow-2xl z-50 text-center pointer-events-none">
+                            <p
+                                class="font-extrabold text-sm mb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400">
+                                {{ badge.name }}</p>
+                            <p class="opacity-90">{{ badge.description }}</p>
+
+                            <div
+                                class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

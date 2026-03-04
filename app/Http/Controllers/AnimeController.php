@@ -287,6 +287,9 @@ class AnimeController extends Controller
 
     public function publicList(User $user)
     {
+
+        $user->load('badges');
+
         $animes = $user->animes()
             ->with('genres')
             ->orderByPivot('is_stu', 'desc')
@@ -298,6 +301,8 @@ class AnimeController extends Controller
             'targetUser' => [
                 'name' => $user->name,
                 'id' => $user->id,
+                'badges' => $user->badges,
+                'level' => $user->level_title
             ]
         ]);
     }
