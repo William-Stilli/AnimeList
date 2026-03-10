@@ -2,14 +2,15 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-// AJOUT DE MESSAGECIRCLE ICI POUR L'ICÔNE DE CRITIQUE 👇
 import { Crown, MessageCircle } from 'lucide-vue-next';
-
 import * as LucideIcons from 'lucide-vue-next';
+
+import RadarChart from '@/components/RadarChart.vue';
 
 const props = defineProps({
     animes: Array,
-    targetUser: Object
+    targetUser: Object,
+    radarData: Object
 });
 
 const getIconComponent = (iconName) => {
@@ -120,37 +121,50 @@ const filteredAnimes = computed(() => {
                 </div>
             </div>
 
-            <div v-if="targetUser.badges && targetUser.badges.length > 0"
-                class="bg-white rounded-2xl shadow-md p-5 mb-8 border border-gray-100">
-                <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4">Badges</h3>
-                <div class="flex flex-wrap gap-4">
-                    <div v-for="badge in targetUser.badges" :key="badge.id"
-                        class="group relative flex flex-col items-center">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 cursor-help bg-gray-900 border-2"
-                            :style="{
-                                borderColor: badge.color || '#4B5563',
-                                color: badge.color || '#9CA3AF',
-                                boxShadow: `0 0 10px ${badge.color || '#4B5563'}50`
-                            }">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
+                v-if="(targetUser.badges && targetUser.badges.length > 0) || (radarData && radarData.labels.length > 0)">
 
-                            <component :is="getIconComponent(badge.icon)" class="w-6 h-6 drop-shadow-md"
-                                :stroke-width="2.5" />
-
-                        </div>
-
-                        <div
-                            class="absolute bottom-full mb-3 hidden group-hover:block w-56 bg-gray-900 text-white text-xs p-3 rounded-xl shadow-2xl z-50 text-center pointer-events-none">
-                            <p
-                                class="font-extrabold text-sm mb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400">
-                                {{ badge.name }}</p>
-                            <p class="opacity-90">{{ badge.description }}</p>
+                <div v-if="targetUser.badges && targetUser.badges.length > 0"
+                    class="bg-white rounded-2xl shadow-md p-5 border border-gray-100"
+                    :class="!(radarData && radarData.labels.length > 0) ? 'md:col-span-2' : ''">
+                    <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4">Badges</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <div v-for="badge in targetUser.badges" :key="badge.id"
+                            class="group relative flex flex-col items-center">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 cursor-help bg-gray-900 border-2"
+                                :style="{
+                                    borderColor: badge.color || '#4B5563',
+                                    color: badge.color || '#9CA3AF',
+                                    boxShadow: `0 0 10px ${badge.color || '#4B5563'}50`
+                                }">
+                                <component :is="getIconComponent(badge.icon)" class="w-6 h-6 drop-shadow-md"
+                                    :stroke-width="2.5" />
+                            </div>
 
                             <div
-                                class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900">
+                                class="absolute bottom-full mb-3 hidden group-hover:block w-56 bg-gray-900 text-white text-xs p-3 rounded-xl shadow-2xl z-50 text-center pointer-events-none">
+                                <p
+                                    class="font-extrabold text-sm mb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400">
+                                    {{ badge.name }}</p>
+                                <p class="opacity-90">{{ badge.description }}</p>
+                                <div
+                                    class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div v-if="radarData && radarData.labels.length > 0"
+                    class="bg-white rounded-2xl shadow-md p-5 border border-gray-100 flex flex-col"
+                    :class="!(targetUser.badges && targetUser.badges.length > 0) ? 'md:col-span-2' : ''">
+                    <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-2">Top
+                        Genres</h3>
+                    <div class="flex-grow w-full relative min-h-[200px]">
+                        <RadarChart :labels="radarData.labels" :values="radarData.values" />
+                    </div>
+                </div>
+
             </div>
 
             <div v-if="filteredAnimes.length > 0" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
@@ -165,7 +179,6 @@ const filteredAnimes = computed(() => {
 
                         <div
                             class="absolute inset-0 bg-black/80 flex flex-col justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30">
-
                             <div v-if="anime.pivot.review" class="max-h-full overflow-y-auto no-scrollbar">
                                 <div class="flex items-center gap-2 mb-2 text-blue-400">
                                     <MessageCircle class="w-5 h-5" />
@@ -175,7 +188,6 @@ const filteredAnimes = computed(() => {
                                     "{{ anime.pivot.review }}"
                                 </p>
                             </div>
-
                         </div>
 
                         <div v-if="anime.pivot.is_stu"
@@ -187,7 +199,6 @@ const filteredAnimes = computed(() => {
                         </div>
 
                         <div class="absolute top-3 right-3 z-40 flex items-center gap-2">
-
                             <div v-if="anime.pivot.review"
                                 class="flex items-center justify-center bg-white/95 backdrop-blur-md w-7 h-7 rounded-full shadow-sm text-blue-500">
                                 <MessageCircle class="w-4 h-4" />
@@ -198,13 +209,11 @@ const filteredAnimes = computed(() => {
                                 <span class="text-yellow-500 text-sm">★</span>
                                 <span class="text-xs font-extrabold text-gray-800">{{ anime.pivot.score }}</span>
                             </div>
-
                         </div>
                     </div>
 
                     <div class="p-4 flex flex-col flex-grow justify-between relative z-10"
                         :class="anime.pivot.is_stu ? 'bg-amber-50/10' : 'bg-white'">
-
                         <div>
                             <div
                                 class="flex flex-wrap gap-1.5 mb-3 h-6 overflow-hidden content-start opacity-80 group-hover:opacity-100 transition-opacity">
@@ -223,7 +232,6 @@ const filteredAnimes = computed(() => {
 
                         <div class="flex justify-between items-center mt-4 pt-3 border-t"
                             :class="anime.pivot.is_stu ? 'border-yellow-200' : 'border-gray-50/80'">
-
                             <span v-if="anime.pivot.is_stu"
                                 class="text-[10px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-sm">
                                 Chef d'Oeuvre

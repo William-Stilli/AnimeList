@@ -296,6 +296,12 @@ class AnimeController extends Controller
             ->orderByPivot('updated_at', 'desc')
             ->get();
 
+        $topGenres = $animes->pluck('genres')
+            ->flatten()
+            ->countBy('name')
+            ->sortDesc()
+            ->take(6);
+
         return Inertia::render('PublicLibrary', [
             'animes' => $animes,
             'targetUser' => [
@@ -303,6 +309,10 @@ class AnimeController extends Controller
                 'id' => $user->id,
                 'badges' => $user->badges,
                 'level' => $user->level_title
+            ],
+            'radarData' => [
+                'labels' => $topGenres->keys()->toArray(),
+                'values' => $topGenres->values()->toArray(),
             ]
         ]);
     }
