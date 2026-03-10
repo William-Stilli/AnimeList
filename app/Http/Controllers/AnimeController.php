@@ -287,11 +287,11 @@ class AnimeController extends Controller
 
     public function publicList(User $user)
     {
-
         $user->load('badges');
 
         $animes = $user->animes()
             ->with('genres')
+            ->withPivot(['is_stu', 'updated_at', 'review', 'score', 'status'])
             ->orderByPivot('is_stu', 'desc')
             ->orderByPivot('updated_at', 'desc')
             ->get();

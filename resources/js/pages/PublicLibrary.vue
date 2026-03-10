@@ -2,7 +2,8 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { Crown } from 'lucide-vue-next';
+// AJOUT DE MESSAGECIRCLE ICI POUR L'ICÔNE DE CRITIQUE 👇
+import { Crown, MessageCircle } from 'lucide-vue-next';
 
 import * as LucideIcons from 'lucide-vue-next';
 
@@ -163,7 +164,18 @@ const filteredAnimes = computed(() => {
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
 
                         <div
-                            class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            class="absolute inset-0 bg-black/80 flex flex-col justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30">
+
+                            <div v-if="anime.pivot.review" class="max-h-full overflow-y-auto no-scrollbar">
+                                <div class="flex items-center gap-2 mb-2 text-blue-400">
+                                    <MessageCircle class="w-5 h-5" />
+                                    <span class="font-bold text-sm">Avis de {{ targetUser.name }} :</span>
+                                </div>
+                                <p class="text-white text-xs italic leading-relaxed">
+                                    "{{ anime.pivot.review }}"
+                                </p>
+                            </div>
+
                         </div>
 
                         <div v-if="anime.pivot.is_stu"
@@ -174,12 +186,19 @@ const filteredAnimes = computed(() => {
                             </div>
                         </div>
 
-                        <div v-if="anime.pivot.score > 0" class="absolute top-3 right-3 z-10">
-                            <div
+                        <div class="absolute top-3 right-3 z-40 flex items-center gap-2">
+
+                            <div v-if="anime.pivot.review"
+                                class="flex items-center justify-center bg-white/95 backdrop-blur-md w-7 h-7 rounded-full shadow-sm text-blue-500">
+                                <MessageCircle class="w-4 h-4" />
+                            </div>
+
+                            <div v-if="anime.pivot.score > 0"
                                 class="flex items-center gap-1 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm">
                                 <span class="text-yellow-500 text-sm">★</span>
                                 <span class="text-xs font-extrabold text-gray-800">{{ anime.pivot.score }}</span>
                             </div>
+
                         </div>
                     </div>
 

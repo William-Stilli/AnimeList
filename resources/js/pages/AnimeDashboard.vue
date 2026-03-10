@@ -92,7 +92,6 @@ const levelInfo = computed(() => {
     };
 });
 
-
 const incrementProgress = (anime: any) => {
     const nextProgress = Number(anime.pivot.progress) + 1;
 
@@ -105,6 +104,23 @@ const incrementProgress = (anime: any) => {
         }
     });
 };
+
+const getProSubtitle = (type: string | undefined) => {
+    const safeType = type ? type.toUpperCase() : 'UNKNOWN'
+
+    switch (safeType) {
+        case 'TV':
+            return "La série d'animation au-dessus des autres";
+        case 'MOVIE':
+            return "Le chef-d'œuvre cinématographique au-dessus des autres";
+        case 'OVA':
+        case 'ONA':
+        case 'SPECIAL':
+            return "L'épisode spécial au-dessus des autres";
+        default:
+            return "L'œuvre magistrale au-dessus des autres";
+    }
+}
 </script>
 
 <template>
@@ -208,7 +224,9 @@ const incrementProgress = (anime: any) => {
                         <h2 class="text-yellow-500 font-black tracking-[0.2em] text-sm uppercase mb-1">Catégorie S.T.U.
                         </h2>
                         <h1 class="text-3xl font-bold text-white mb-2">{{ stuAnime.title }}</h1>
-                        <p class="text-gray-400 italic">"La saison/film au dessus des autres"</p>
+                        <p class="text-gray-400 italic text-sm">
+                            "{{ getProSubtitle(stuAnime.type) }}"
+                        </p>
                     </div>
 
                     <Link :href="route('animes.show', stuAnime.mal_id)"
