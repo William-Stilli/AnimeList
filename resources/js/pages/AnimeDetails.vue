@@ -123,6 +123,22 @@ onMounted(async () => {
     }
 });
 
+const setPantheonRank = (rank) => {
+    router.post(route('animes.pantheon', props.anime.id), {
+        rank: rank
+    }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            if (rank === null) {
+                toast.warning("Retiré du Panthéon.");
+            } else {
+                toast.success(`Classé #${rank} au Panthéon !`);
+            }
+        },
+        onError: () => toast.error("Erreur lors de la mise à jour du Panthéon.")
+    });
+};
+
 const toggleStu = () => {
     router.post(route('animes.toggleStu', props.anime.mal_id), {}, {
         preserveScroll: true,
@@ -235,6 +251,38 @@ const toggleStu = () => {
                                 <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
                                     <div class="bg-blue-500 h-1.5 rounded-full"
                                         :style="{ width: (anime.episodes && anime.episodes > 0) ? Math.min((myData.progress / anime.episodes * 100), 100) + '%' : '0%' }">
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 pt-4 border-t border-dashed border-gray-200 dark:border-gray-700">
+                                    <span
+                                        class="text-xs font-bold text-gray-400 uppercase tracking-wide flex items-center gap-1 mb-3">
+                                        Épingler au Panthéon
+                                    </span>
+
+                                    <div class="flex flex-wrap gap-2">
+                                        <button @click="setPantheonRank(1)"
+                                            :class="myData.pantheon_rank === 1 ? 'bg-yellow-500 text-white ring-2 ring-yellow-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-yellow-100 dark:hover:bg-yellow-900/30'"
+                                            class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all duration-200 flex-1 text-center">
+                                            #1
+                                        </button>
+
+                                        <button @click="setPantheonRank(2)"
+                                            :class="myData.pantheon_rank === 2 ? 'bg-gray-400 text-white ring-2 ring-gray-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'"
+                                            class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all duration-200 flex-1 text-center">
+                                            #2
+                                        </button>
+
+                                        <button @click="setPantheonRank(3)"
+                                            :class="myData.pantheon_rank === 3 ? 'bg-amber-600 text-white ring-2 ring-amber-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-amber-100 dark:hover:bg-amber-900/30'"
+                                            class="px-3 py-1.5 rounded-lg font-bold text-xs transition-all duration-200 flex-1 text-center">
+                                            #3
+                                        </button>
+
+                                        <button v-if="myData.pantheon_rank" @click="setPantheonRank(null)"
+                                            class="px-3 py-1.5 rounded-lg font-bold text-xs bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 transition-all duration-200 ml-auto">
+                                            Retirer
+                                        </button>
                                     </div>
                                 </div>
 

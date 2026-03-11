@@ -26,13 +26,13 @@ const tabs = [
 const isModalOpen = ref(false);
 const editingAnime = ref(null);
 
-// Formulaire étendu avec les champs d'image
 const form = ref({
     status: '',
     progress: 0,
     score: 0,
-    selected_image_url: null, // Nouvelle URL choisie
-    reset_image: false        // Demande de reset
+    selected_image_url: null,
+    reset_image: false,
+    pantheon_rank: null // AJOUT DU PANTHÉON ICI
 });
 
 const galleryImages = ref([]);
@@ -57,19 +57,14 @@ const refreshLibrary = async () => {
     }
 };
 
-// --- LOGIQUE D'AFFICHAGE DES IMAGES ---
 const getCoverImage = (anime) => {
-    // 1. On regarde dans le pivot (données perso)
     const customPath = anime.pivot?.custom_image_path;
 
     if (customPath) {
-        // Si c'est une URL (choisie dans la galerie)
         if (customPath.startsWith('http')) return customPath;
-        // Si c'est un fichier uploadé (ancien système)
         return '/storage/' + customPath;
     }
 
-    // 2. Sinon image par défaut Jikan
     return anime.image_url;
 };
 
@@ -86,18 +81,17 @@ const filteredAnimes = computed(() => {
 const openEditModal = async (anime) => {
     editingAnime.value = anime;
 
-    // On initialise le formulaire avec les valeurs actuelles
     form.value = {
         status: anime.pivot.status,
         progress: anime.pivot.progress,
         score: anime.pivot.score,
-        selected_image_url: null, // Reset de la sélection temporaire
-        reset_image: false
+        selected_image_url: null,
+        reset_image: false,
+        pantheon_rank: anime.pivot.pantheon_rank || null // RÉCUPÉRATION DU RANG ACTUEL
     };
 
     isModalOpen.value = true;
 
-    // Chargement de la galerie
     galleryImages.value = [];
     isLoadingGallery.value = true;
 
@@ -122,14 +116,12 @@ const closeModal = () => {
     editingAnime.value = null;
 };
 
-// Sélectionner une image dans la galerie (sans sauvegarder encore)
 const selectCover = (url) => {
     form.value.selected_image_url = url;
-    form.value.reset_image = false; // On annule le reset si on choisit une nouvelle image
+    form.value.reset_image = false;
     toast.info("Image sélectionnée ! Clique sur Sauvegarder pour valider.");
 };
 
-// Demander le reset de l'image
 const resetCover = () => {
     form.value.reset_image = true;
     form.value.selected_image_url = null;
@@ -148,17 +140,27 @@ const saveChanges = async () => {
     try {
         await axios.post(`/animes/${editingAnime.value.id}`, {
             ...form.value,
-            _method: 'PUT' // Important pour Laravel
+            _method: 'PUT'
         });
 
-        // Mise à jour locale immédiate pour réactivité
+        // MISE À JOUR LOCALE APRÈS SAUVEGARDE RÉUSSIE
         const index = animes.value.findIndex(a => a.id === editingAnime.value.id);
         if (index !== -1) {
             animes.value[index].pivot.status = form.value.status;
             animes.value[index].pivot.progress = form.value.progress;
             animes.value[index].pivot.score = form.value.score;
 
-            // Mise à jour de l'image locale
+            // Si l'utilisateur a donné un nouveau rang Panthéon
+            if (form.value.pantheon_rank !== null) {
+                // On retire ce rang des autres animés pour simuler le comportement du backend
+                animes.value.forEach(a => {
+                    if (a.id !== editingAnime.value.id && a.pivot.pantheon_rank === form.value.pantheon_rank) {
+                        a.pivot.pantheon_rank = null;
+                    }
+                });
+            }
+            animes.value[index].pivot.pantheon_rank = form.value.pantheon_rank;
+
             if (form.value.selected_image_url) {
                 animes.value[index].pivot.custom_image_path = form.value.selected_image_url;
             } else if (form.value.reset_image) {
@@ -174,7 +176,7 @@ const saveChanges = async () => {
             component: AnimeToast,
             props: {
                 title: editingAnime.value.title,
-                image: getCoverImage(editingAnime.value), // On utilise le helper ici aussi
+                image: getCoverImage(editingAnime.value),
                 message: "Mise à jour réussie"
             }
         }, { timeout: 3000, icon: false });
@@ -257,6 +259,16 @@ const deleteAnime = async () => {
                                             class="flex items-center gap-2 justify-center text-yellow-400 font-black tracking-widest text-xs uppercase drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                                             <Crown class="w-4 h-4 fill-current animate-pulse" /> S.T.U.
                                         </div>
+                                    </div>
+
+                                    <div v-if="anime.pivot.pantheon_rank"
+                                        class="absolute top-2 left-2 w-8 h-8 rounded-full flex items-center justify-center font-black text-white shadow-lg border-2 z-20"
+                                        :class="{
+                                            'bg-yellow-500 border-yellow-300 shadow-yellow-500/50': anime.pivot.pantheon_rank === 1,
+                                            'bg-gray-400 border-gray-300 shadow-gray-400/50': anime.pivot.pantheon_rank === 2,
+                                            'bg-amber-600 border-amber-300 shadow-amber-600/50': anime.pivot.pantheon_rank === 3
+                                        }">
+                                        #{{ anime.pivot.pantheon_rank }}
                                     </div>
 
                                     <div v-if="anime.pivot.score > 0"
@@ -393,6 +405,39 @@ const deleteAnime = async () => {
                                 class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5">
                         </div>
                     </div>
+
+                    <div class="pt-4 border-t border-gray-100">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Épingler au Panthéon</label>
+
+                        <div class="flex gap-2 bg-gray-50 p-1.5 rounded-xl border border-gray-200">
+                            <button type="button" @click="form.pantheon_rank = 1"
+                                :class="form.pantheon_rank === 1 ? 'bg-yellow-500 text-white shadow-md scale-105' : 'text-gray-600 hover:bg-gray-200 bg-white border border-gray-100'"
+                                class="flex-1 py-2 rounded-lg text-xs font-extrabold transition-all duration-200">
+                                🥇 #1
+                            </button>
+
+                            <button type="button" @click="form.pantheon_rank = 2"
+                                :class="form.pantheon_rank === 2 ? 'bg-gray-400 text-white shadow-md scale-105' : 'text-gray-600 hover:bg-gray-200 bg-white border border-gray-100'"
+                                class="flex-1 py-2 rounded-lg text-xs font-extrabold transition-all duration-200">
+                                🥈 #2
+                            </button>
+
+                            <button type="button" @click="form.pantheon_rank = 3"
+                                :class="form.pantheon_rank === 3 ? 'bg-amber-600 text-white shadow-md scale-105' : 'text-gray-600 hover:bg-gray-200 bg-white border border-gray-100'"
+                                class="flex-1 py-2 rounded-lg text-xs font-extrabold transition-all duration-200">
+                                🥉 #3
+                            </button>
+
+                            <button type="button" v-if="form.pantheon_rank !== null" @click="form.pantheon_rank = null"
+                                class="px-3 py-2 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50 hover:text-red-700 transition-all duration-200 border border-transparent hover:border-red-100">
+                                Retirer
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1.5 italic px-1 flex items-center gap-1">
+                            <span class="text-blue-500">ℹ️</span> Remplacera l'animé actuel si ce rang est pris.
+                        </p>
+                    </div>
+
                 </div>
 
                 <div class="bg-gray-50 px-6 py-4 flex justify-between items-center border-t border-gray-100 shrink-0">

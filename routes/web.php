@@ -48,6 +48,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/u/{user}', [AnimeController::class, 'publicList'])->name('user.list');
 
+    Route::post('/animes/{anime}/pantheon', [AnimeController::class, 'updatePantheon'])->name('animes.pantheon');
 
     Route::get('settings/data', [DataController::class, 'show'])->name('settings.data');
     Route::get('settings/data/export', [DataController::class, 'export'])->name('settings.data.export');

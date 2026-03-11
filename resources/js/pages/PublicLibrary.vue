@@ -71,6 +71,12 @@ const filteredAnimes = computed(() => {
     }
     return result;
 });
+
+const pantheonAnimes = computed(() => {
+    return props.animes
+        .filter(anime => anime.pivot.pantheon_rank !== null)
+        .sort((a, b) => a.pivot.pantheon_rank - b.pivot.pantheon_rank);
+});
 </script>
 
 <template>
@@ -165,6 +171,61 @@ const filteredAnimes = computed(() => {
                     </div>
                 </div>
 
+            </div>
+
+            <div v-if="pantheonAnimes.length > 0" class="mb-12">
+                <div class="flex items-center gap-3 mb-6">
+                    <Crown class="w-8 h-8 text-yellow-500" />
+                    <h2 class="text-2xl font-black text-gray-900 tracking-tight">Le Panthéon</h2>
+                    <div class="h-px bg-gradient-to-r from-yellow-400 to-transparent flex-grow ml-4"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <Link v-for="(anime, index) in pantheonAnimes" :key="'pantheon-' + anime.id"
+                        :href="route('animes.show', anime.mal_id)"
+                        class="group relative rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-yellow-200/50 flex flex-col h-64 md:h-80 cursor-pointer">
+
+                        <img :src="anime.image_url" :alt="anime.title"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent">
+                        </div>
+
+                        <div
+                            class="absolute inset-0 border-2 border-yellow-400/30 rounded-3xl group-hover:border-yellow-400/80 transition-colors z-20">
+                        </div>
+
+                        <div class="absolute top-4 left-4 z-30">
+                            <div
+                                class="w-10 h-10 rounded-full bg-yellow-500 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-yellow-500/50 border-2 border-yellow-300">
+                                #{{ index + 1 }}
+                            </div>
+                        </div>
+
+                        <div class="relative z-30 flex flex-col justify-end h-full p-6">
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <span v-for="g in anime.genres?.slice(0, 2)" :key="'p-' + g.id"
+                                    class="text-[10px] font-bold text-yellow-900 bg-yellow-400 px-2 py-1 rounded-md uppercase tracking-wide">
+                                    {{ g.name }}
+                                </span>
+                            </div>
+
+                            <h3
+                                class="text-xl md:text-2xl font-bold text-white leading-tight mb-2 group-hover:text-yellow-300 transition-colors line-clamp-2">
+                                {{ anime.title }}
+                            </h3>
+
+                            <p v-if="anime.pivot.review"
+                                class="text-gray-300 text-sm italic line-clamp-2 border-l-2 border-yellow-500 pl-3">
+                                "{{ anime.pivot.review }}"
+                            </p>
+                            <div v-else class="flex items-center gap-1 text-yellow-400">
+                                <span class="text-lg">★</span>
+                                <span class="font-extrabold">{{ anime.pivot.score }}/10</span>
+                            </div>
+                        </div>
+                    </Link>
+                </div>
             </div>
 
             <div v-if="filteredAnimes.length > 0" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">

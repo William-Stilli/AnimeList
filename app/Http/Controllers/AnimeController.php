@@ -136,6 +136,7 @@ class AnimeController extends Controller
             'rank' => 'sometimes|nullable|integer',
             'review' => 'nullable|string|max:5000',
             'selected_image_url' => 'nullable|url',
+            'pantheon_rank' => 'nullable|integer|in:1,2,3'
         ]);
 
         $user = $request->user();
@@ -149,6 +150,20 @@ class AnimeController extends Controller
         $pivotData = [];
         $xpChange = 0;
         $message = 'Dossier mis à jour.';
+
+        if (array_key_exists('pantheon_rank', $validated)) {
+            $rank = $validated['pantheon_rank'];
+
+            if ($rank !== null) {
+                $existing = $user->animes()->wherePivot('pantheon_rank', $rank)->first();
+
+                if ($existing && $existing->id !== $anime->id) {
+                    $user->animes()->updateExistingPivot($existing->id, ['pantheon_rank' => null]);
+                }
+            }
+
+            $pivotData['pantheon_rank'] = $rank;
+        }
 
         if (isset($validated['status']))
             $pivotData['status'] = $validated['status'];
@@ -291,9 +306,8 @@ class AnimeController extends Controller
 
         $animes = $user->animes()
             ->with('genres')
-            ->withPivot(['is_stu', 'updated_at', 'review', 'score', 'status'])
+            ->withPivot(['is_stu', 'pantheon_rank', 'updated_at', 'review', 'score', 'status'])
             ->orderByPivot('is_stu', 'desc')
-            ->orderByPivot('updated_at', 'desc')
             ->get();
 
         $topGenres = $animes->pluck('genres')
@@ -315,6 +329,30 @@ class AnimeController extends Controller
                 'values' => $topGenres->values()->toArray(),
             ]
         ]);
+    }
+
+    public function updatePantheon(Request $request, Anime $anime)
+    {
+        $request->validate([
+            'rank' => 'nullable|integer|in:1,2,3'
+        ]);
+
+        $rank = $request->rank;
+        $user = auth()->user();
+
+        if ($rank !== null) {
+            $existing = $user->animes()->wherePivot('pantheon_rank', $rank)->first();
+
+            if ($existing && $existing->id !== $anime->id) {
+                $user->animes()->updateExistingPivot($existing->id, ['pantheon_rank' => null]);
+            }
+        }
+
+        $user->animes()->syncWithoutDetaching([
+            $anime->id => ['pantheon_rank' => $rank]
+        ]);
+
+        return back()->with('success', 'Le Panthéon a été mis à jour avec succès !');
     }
 
     public function community(Request $request)
