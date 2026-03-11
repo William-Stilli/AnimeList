@@ -176,7 +176,7 @@ const pantheonAnimes = computed(() => {
             <div v-if="pantheonAnimes.length > 0" class="mb-12">
                 <div class="flex items-center gap-3 mb-6">
                     <Crown class="w-8 h-8 text-yellow-500" />
-                    <h2 class="text-2xl font-black text-gray-900 tracking-tight">Le Panthéon</h2>
+                    <h2 class="text-2xl font-black text-white tracking-tight">Le Panthéon</h2>
                     <div class="h-px bg-gradient-to-r from-yellow-400 to-transparent flex-grow ml-4"></div>
                 </div>
 

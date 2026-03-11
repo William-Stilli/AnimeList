@@ -119,10 +119,13 @@ class AnimeController extends Controller
                 'score',
                 'is_stu',
                 'updated_at',
-                'custom_image_path'
+                'custom_image_path',
+                'pantheon_rank'
             ])
             ->with('genres')
             ->orderByPivot('is_stu', 'desc')
+            ->orderByRaw('anime_user.pantheon_rank IS NULL ASC')
+            ->orderByPivot('pantheon_rank', 'asc')
             ->orderByPivot('updated_at', 'desc')
             ->get();
     }
@@ -308,11 +311,33 @@ class AnimeController extends Controller
             ->with('genres')
             ->withPivot(['is_stu', 'pantheon_rank', 'updated_at', 'review', 'score', 'status'])
             ->orderByPivot('is_stu', 'desc')
+            ->orderByRaw('anime_user.pantheon_rank IS NULL ASC')
+            ->orderByPivot('pantheon_rank', 'asc')
+            ->orderByPivot('updated_at', 'desc')
             ->get();
 
-        $topGenres = $animes->pluck('genres')
-            ->flatten()
-            ->countBy('name')
+        $uniqueFranchises = [];
+
+        foreach ($animes as $anime) {
+            if ($anime->pivot->status !== 'completed') {
+                continue;
+            }
+
+            $title = $anime->title_english ?? $anime->title;
+
+            $cleanTitle = preg_replace('/(:? Season \d+|:? \d+(st|nd|rd|th) Season|:? Part \d+|:? The Final Season|:? Next Shine)/i', '', $title);
+            $cleanTitle = preg_replace('/(\s-.*)/', '', $cleanTitle);
+            $cleanTitle = preg_replace('/(\s[IVX]+)$/', '', $cleanTitle);
+            $cleanTitle = trim($cleanTitle);
+
+            foreach ($anime->genres as $genre) {
+                $uniqueFranchises[$genre->name][$cleanTitle] = true;
+            }
+        }
+
+        $topGenres = collect($uniqueFranchises)->map(function ($titlesArray) {
+            return count($titlesArray);
+        })
             ->sortDesc()
             ->take(6);
 

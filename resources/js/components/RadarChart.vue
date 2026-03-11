@@ -64,7 +64,7 @@ const chartOptions = computed(() => {
                 beginAtZero: false,
 
                 angleLines: { color: 'rgba(0, 0, 0, 0.05)', lineWidth: 1 },
-                grid: { color: 'rgba(0, 0, 0, 0.05)', circular: true },
+                grid: { color: 'rgba(0, 0, 0, 0.05)', circular: false },
                 pointLabels: {
                     font: { size: 12, weight: '900', family: "'Inter', system-ui, sans-serif" },
                     color: '#374151',
