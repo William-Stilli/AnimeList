@@ -24,6 +24,9 @@ const getIconComponent = (iconName) => {
     return LucideIcons[pascalName] || LucideIcons.HelpCircle;
 };
 
+const minScore = ref(0);
+const maxScore = ref(10);
+
 const searchQuery = ref('');
 const currentTab = ref('all');
 const tabs = [
@@ -69,6 +72,12 @@ const filteredAnimes = computed(() => {
             (anime.genres && anime.genres.some(g => g.name.toLowerCase().includes(lowerQuery)))
         );
     }
+
+    result = result.filter(anime => {
+        const score = anime.pivot.score;
+        return score >= minScore.value && score <= maxScore.value;
+    })
+
     return result;
 });
 
@@ -119,6 +128,26 @@ const pantheonAnimes = computed(() => {
                             : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50']">
                         {{ tab.label }}
                     </button>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6 p-4 rounded-lg mb-6">
+
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">
+                            Score Min : <span class="text-blue-400 font-bold">{{ minScore }}</span>
+                        </label>
+                        <input type="range" v-model.number="minScore" min="0" max="10" step="1"
+                            class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">
+                            Score Max : <span class="text-purple-400 font-bold">{{ maxScore }}</span>
+                        </label>
+                        <input type="range" v-model.number="maxScore" min="0" max="10" step="1"
+                            class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-purple-500">
+                    </div>
+
                 </div>
 
                 <div class="relative w-full md:w-80 group">

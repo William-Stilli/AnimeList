@@ -4,12 +4,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Anime;
-use App\Models\Genre;
 use App\Jobs\FetchAnimeData;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class AnimeController extends Controller
 {

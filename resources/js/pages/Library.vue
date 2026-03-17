@@ -12,6 +12,9 @@ import { Crown, Pencil, Trash2, RotateCcw } from 'lucide-vue-next';
 const [parent] = useAutoAnimate()
 const toast = useToast();
 
+const minScore = ref(0);
+const maxScore = ref(10);
+
 const searchQuery = ref('');
 const animes = ref([]);
 const currentTab = ref('all');
@@ -32,7 +35,7 @@ const form = ref({
     score: 0,
     selected_image_url: null,
     reset_image: false,
-    pantheon_rank: null // AJOUT DU PANTHÉON ICI
+    pantheon_rank: null
 });
 
 const galleryImages = ref([]);
@@ -41,6 +44,18 @@ const isLoadingGallery = ref(false);
 watch(() => form.value.status, (newStatus) => {
     if (newStatus === 'completed' && editingAnime.value?.episodes) {
         form.value.progress = editingAnime.value.episodes;
+    }
+});
+
+watch(maxScore, (newValue) => {
+    if (newValue > maxScore.value) {
+        minScore.value = maxScore.value;
+    }
+});
+
+watch(maxScore, (newValue) => {
+    if (newValue < minScore.value) {
+        maxScore.value = minScore.value;
     }
 });
 
@@ -75,6 +90,12 @@ const filteredAnimes = computed(() => {
         const lowerQuery = searchQuery.value.toLowerCase();
         result = result.filter(anime => { return anime.genres && anime.genres.some(genre => genre.name.toLowerCase().includes(lowerQuery)) });
     }
+
+    result = result.filter(anime => {
+        const score = anime.pivot.score;
+        return score >= minScore.value && score <= maxScore.value;
+    })
+
     return result
 });
 
@@ -87,7 +108,7 @@ const openEditModal = async (anime) => {
         score: anime.pivot.score,
         selected_image_url: null,
         reset_image: false,
-        pantheon_rank: anime.pivot.pantheon_rank || null // RÉCUPÉRATION DU RANG ACTUEL
+        pantheon_rank: anime.pivot.pantheon_rank || null
     };
 
     isModalOpen.value = true;
@@ -143,16 +164,13 @@ const saveChanges = async () => {
             _method: 'PUT'
         });
 
-        // MISE À JOUR LOCALE APRÈS SAUVEGARDE RÉUSSIE
         const index = animes.value.findIndex(a => a.id === editingAnime.value.id);
         if (index !== -1) {
             animes.value[index].pivot.status = form.value.status;
             animes.value[index].pivot.progress = form.value.progress;
             animes.value[index].pivot.score = form.value.score;
 
-            // Si l'utilisateur a donné un nouveau rang Panthéon
             if (form.value.pantheon_rank !== null) {
-                // On retire ce rang des autres animés pour simuler le comportement du backend
                 animes.value.forEach(a => {
                     if (a.id !== editingAnime.value.id && a.pivot.pantheon_rank === form.value.pantheon_rank) {
                         a.pivot.pantheon_rank = null;
@@ -223,6 +241,26 @@ const deleteAnime = async () => {
                                     :class="['px-4 py-2 rounded-full font-bold text-sm transition', currentTab === tab.key ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
                                     {{ tab.label }}
                                 </button>
+                            </div>
+
+                            <div class="flex flex-col md:flex-row gap-6 p-4 rounded-lg mb-6">
+
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-600 mb-2">
+                                        Score Min : <span class="text-blue-400 font-bold">{{ minScore }}</span>
+                                    </label>
+                                    <input type="range" v-model.number="minScore" min="0" max="10" step="1"
+                                        class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                                </div>
+
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-600 mb-2">
+                                        Score Max : <span class="text-purple-400 font-bold">{{ maxScore }}</span>
+                                    </label>
+                                    <input type="range" v-model.number="maxScore" min="0" max="10" step="1"
+                                        class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-purple-500">
+                                </div>
+
                             </div>
 
                             <div class="relative w-full md:w-64">
@@ -357,7 +395,7 @@ const deleteAnime = async () => {
                         </div>
                         <div v-else-if="form.reset_image"
                             class="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-700">
-                            🔄 L'image sera réinitialisée à la sauvegarde.
+                            L'image sera réinitialisée à la sauvegarde.
                         </div>
 
                         <div v-if="galleryImages.length > 0"
@@ -434,7 +472,7 @@ const deleteAnime = async () => {
                             </button>
                         </div>
                         <p class="text-[10px] text-gray-400 mt-1.5 italic px-1 flex items-center gap-1">
-                            <span class="text-blue-500">ℹ️</span> Remplacera l'animé actuel si ce rang est pris.
+                            <span class="text-blue-500">ℹ</span> Remplacera l'animé actuel si ce rang est pris.
                         </p>
                     </div>
 

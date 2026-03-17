@@ -53,7 +53,8 @@ export default defineConfig({
             origin: '*',
         },
         hmr: {
-            host: localIP,
+            //host: 'pc-bd12-08',
+            host: 'localhost',
         },
         watch: {
             usePolling: true,

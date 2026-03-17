@@ -5,9 +5,6 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h, DefineComponent } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
-// Si tu as des soucis avec Ziggy, tu peux essayer d'importer la config générée si elle existe :
-// import { Ziggy } from './ziggy'; 
-
 import { initializeTheme } from './composables/useAppearance';
 
 import Toast from "vue-toastification";
