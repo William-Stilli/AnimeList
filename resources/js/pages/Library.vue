@@ -8,6 +8,14 @@ import { useAutoAnimate } from '@formkit/auto-animate/vue'
 import AnimeToast from '@/components/AnimeToast.vue';
 import confetti from 'canvas-confetti';
 import { Crown, Pencil, Trash2, RotateCcw } from 'lucide-vue-next';
+import collections from '@/routes/collections';
+
+const props = defineProps({
+    collections: {
+        type: Array,
+        default: () => [],
+    }
+})
 
 const [parent] = useAutoAnimate()
 const toast = useToast();
@@ -15,6 +23,8 @@ const toast = useToast();
 const minScore = ref(0);
 const maxScore = ref(10);
 
+const activeCollection = ref(null);
+const newCollectionName = ref('');
 const searchQuery = ref('');
 const animes = ref([]);
 const currentTab = ref('all');
@@ -35,7 +45,8 @@ const form = ref({
     score: 0,
     selected_image_url: null,
     reset_image: false,
-    pantheon_rank: null
+    pantheon_rank: null,
+    collections: [],
 });
 
 const galleryImages = ref([]);
@@ -62,6 +73,60 @@ watch(maxScore, (newValue) => {
 onMounted(async () => {
     refreshLibrary();
 });
+
+const createCollection = async () => {
+    if (!newCollectionName.value) return;
+    try {
+        await router.post('/collections', { name: newCollectionName.value }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                newCollectionName.value = '', toast.success("Nouvelle collection crée")
+            },
+        });
+    } catch (error) {
+        console.log(error);
+        toast.error("Erreur lors de la création.")
+    }
+}
+
+const deleteCollection = async (collectionId) => {
+    if (!confirm("Veux-tu vraiment supprimer ce dossier ?")) return;
+
+    try {
+        await router.delete(`/collections/${collectionId}`, {
+            preserveScroll: true,
+            onSuccess: () => toast.success("Suppression de la collection réussie")
+        })
+    } catch (error) {
+        toast.error("Erreur lors de la suppression")
+    }
+}
+
+const isAnimeInCollection = (collectionId) => {
+    if (!editingAnime.value || !editingAnime.value.collections) return false;
+    return editingAnime.value.collections.some(c => c.id === collectionId);
+}
+
+const toggleCollection = async (collectionId) => {
+    try {
+        await router.post(`/collections/${collectionId}/toggle`, {
+            anime_id: editingAnime.value.id
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                const collIndex = editingAnime.value.collections.findIndex(c => c.id === collectionId);
+                if (collIndex > -1) {
+                    editingAnime.value.collections.splice(collIndex, 1);
+                } else {
+                    editingAnime.value.collections.push({ id: collectionId })
+                }
+                toast.info("Collection mise à jour")
+            }
+        });
+    } catch (error) {
+        toast.error("Erreur lors de l'ajout/suppression");
+    }
+}
 
 const refreshLibrary = async () => {
     try {
@@ -96,6 +161,12 @@ const filteredAnimes = computed(() => {
         return score >= minScore.value && score <= maxScore.value;
     })
 
+    if (activeCollection.value !== null) {
+        result = result.filter(anime => {
+            return anime.collections && anime.collections.some(c => c.id === activeCollection.value);
+        });
+    }
+
     return result
 });
 
@@ -108,7 +179,8 @@ const openEditModal = async (anime) => {
         score: anime.pivot.score,
         selected_image_url: null,
         reset_image: false,
-        pantheon_rank: anime.pivot.pantheon_rank || null
+        pantheon_rank: anime.pivot.pantheon_rank || null,
+        collections: anime.collections ? anime.collections.map(c => c.id) : [],
     };
 
     isModalOpen.value = true;
@@ -184,6 +256,8 @@ const saveChanges = async () => {
             } else if (form.value.reset_image) {
                 animes.value[index].pivot.custom_image_path = null;
             }
+
+            animes.value[index].collections = props.collections.filter(c => form.value.collections.includes(c.id));
         }
 
         if (form.value.status === 'completed') {
@@ -264,15 +338,48 @@ const deleteAnime = async () => {
                             </div>
 
                             <div class="relative w-full md:w-64">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
                                 <input v-model="searchQuery" type="text" placeholder="Filtrer par genre..."
-                                    class="pl-10 block w-full rounded-full border-gray-300 bg-gray-50 focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition">
+                                    class="bg-gray-300 px-3 py-2 rounded-lg border border-gray-600 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="shadow-xl p-4 rounded-lg mb-6 flex items-center gap-4">
+                            <div class="flex-1">
+                                <h3 class="font-bold mb-2">Mes Collections</h3>
+                                <div class="flex flex-wrap gap-2">
+
+                                    <button @click="activeCollection = null"
+                                        :class="activeCollection === null ? 'bg-blue-600 ring-2 ring-white' : 'bg-gray-700 hover:bg-gray-600'"
+                                        class="px-3 py-1 text-white rounded-full text-sm font-medium transition">
+                                        Tout afficher
+                                    </button>
+
+                                    <div v-for="collection in props.collections" :key="collection.id"
+                                        @click="activeCollection = collection.id"
+                                        :class="activeCollection === collection.id ? 'bg-purple-600 ring-2 ring-white' : 'bg-gray-700 hover:bg-gray-600'"
+                                        class="flex items-center gap-2 px-3 py-1 text-white rounded-full text-sm cursor-pointer transition select-none">
+                                        <span class="font-medium">
+                                            {{ collection.name }}
+                                        </span>
+
+                                        <button @click.stop="deleteCollection(collection.id)"
+                                            class="text-gray-300 hover:text-red-400 transition ml-1"
+                                            title="Supprimer ce dossier">
+                                            <Trash2 class="w-4 h-4" />
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <input v-model="newCollectionName" type="text" placeholder="Nom du dossier..."
+                                    class="bg-gray-300 px-3 py-2 rounded-lg border border-gray-600 focus:border-blue-500"
+                                    @keyup.enter="createCollection">
+                                <button @click="createCollection"
+                                    class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-bold">
+                                    +
+                                </button>
                             </div>
                         </div>
 
@@ -369,8 +476,26 @@ const deleteAnime = async () => {
                         class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
                 </div>
 
-                <div class="p-6 space-y-5 overflow-y-auto custom-scrollbar">
+                <div class="mt-4 p-4 rounded-lg">
+                    <h4 class="text-gray-200 font-bold mb-3 flex items-center gap-2">
+                        Ajouter aux Playlists
+                    </h4>
 
+                    <div v-if="props.collections.length === 0" class="text-sm text-gray-400">
+                        Tu n'as pas encore créé de dossier.
+                    </div>
+
+                    <div v-else class="flex flex-col gap-2 max-h-40 overflow-y-auto">
+                        <label v-for="collection in props.collections" :key="collection.id"
+                            class="flex items-center gap-3 text-gray-200 cursor-pointer hover:bg-gray-600 p-2 rounded transition">
+                            <input type="checkbox" :value="collection.id" v-model="form.collections"
+                                class="w-5 h-5 rounded bg-gray-800 border-gray-500 text-blue-500 focus:ring-blue-500 cursor-pointer">
+                            <span class="font-medium">{{ collection.name }}</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-5 overflow-y-auto custom-scrollbar">
                     <div>
                         <div class="flex justify-between items-center mb-3">
                             <h4 class="font-bold text-gray-700 flex items-center gap-2">

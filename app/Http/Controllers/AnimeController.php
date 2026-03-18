@@ -119,7 +119,7 @@ class AnimeController extends Controller
                 'custom_image_path',
                 'pantheon_rank'
             ])
-            ->with('genres')
+            ->with(['genres', 'collections:id'])
             ->orderByPivot('is_stu', 'desc')
             ->orderByRaw('anime_user.pantheon_rank IS NULL ASC')
             ->orderByPivot('pantheon_rank', 'asc')
@@ -244,6 +244,12 @@ class AnimeController extends Controller
                 $loss = abs($xpChange);
                 $message .= " Correction effectuée : -{$loss} XP.";
             }
+        }
+
+        if ($request->has('collections')) {
+            $anime->collections()->sync($request->collections);
+        } else {
+            $anime->collections()->sync([]);
         }
 
         return redirect()->back()->with('success', $message);

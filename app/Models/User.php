@@ -59,6 +59,11 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function collections()
+    {
+        return $this->hasMany(Collection::class);
+    }
+
     public function getRouteKeyName()
     {
         return 'name';

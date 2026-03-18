@@ -25,4 +25,9 @@ class Anime extends Model
     {
         return $this->belongsToMany(Genre::class, 'anime_genre');
     }
+
+    public function collections()
+    {
+        return $this->belongsToMany(Collection::class)->withTimestamps();
+    }
 }
