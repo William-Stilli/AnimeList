@@ -104,7 +104,7 @@ trait HasGamification
             $isEligible = false;
 
             if ($badge->condition_type === 'genre_count') {
-                $meta = json_decode($badge->metadata, true);
+                $meta = is_string($badge->metadata) ? json_decode($badge->metadata, true) : $badge->metadata;
                 $targetGenre = $meta['genre_name'] ?? null;
 
                 if ($targetGenre && isset($userGenreCounts[$targetGenre])) {

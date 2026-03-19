@@ -1,5 +1,13 @@
 # Ultimate Anime Tracker 📺
 
+## ⚠️ Avertissement / Disclaimer
+
+**Pour les francophones :**
+Cette application a été développée sur mesure, strictement pour mon utilisation personnelle. Étant un projet privé ouvert au public, il est fort probable que quelques bugs se cachent encore dans les recoins du code. De plus, l'interface et la logique sont pensées pour mon propre confort, et il n'est absolument pas prévu d'ajouter une traduction en anglais ou de l'adapter pour un usage général pour le moment. Si vous décidez de l'utiliser ou de la forker, c'est à vos risques et périls !
+
+**For English speakers:**
+This application was built strictly for my own personal use. As it is a personal project made public, expect to encounter a few bugs and unexpected behaviors here and there. Furthermore, the application is tailored to my specific needs, and there are currently no plans to provide an English translation or global localization. Feel free to explore the code, but use or fork it at your own risk!
+
 ![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![Vue.js](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)

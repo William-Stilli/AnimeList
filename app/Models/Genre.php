@@ -10,10 +10,10 @@ class Genre extends Model
     use HasFactory;
     protected $fillable = ['name', 'mal_id'];
 
-    public function genres()
-    {
-        return $this->belongsToMany(Genre::class, 'anime_genre');
-    }
+    // public function genres()
+    // {
+    //     return $this->belongsToMany(Genre::class, 'anime_genre');
+    // }
 
     public function animes()
     {
