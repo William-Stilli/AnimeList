@@ -52,16 +52,22 @@ Exécutez les commandes suivantes dans votre terminal :
 
 **1. Récupérer le code source et entrer dans le répertoire :**
     ```bash
+    
     git clone [https://github.com/William-Stilli/AnimeList.git](https://github.com/William-Stilli/AnimeList.git)
+    
     cd AnimeList
+    
     cp .env.example .env
+    
     docker compose up -d --build
+    
     docker compose exec app php artisan key:generate
+    
     docker compose exec app php artisan migrate:fresh --seed
+    
     docker compose exec app chown -R www-data:www-data /var/www/database
     ```
-
-    Déploiement terminé ! L'application est désormais accessible depuis votre navigateur à l'adresse suivante : http://localhost:8000
+Déploiement terminé ! L'application est désormais accessible depuis votre navigateur à l'adresse suivante : http://localhost:8000
 
 ## Commandes Utiles
 
