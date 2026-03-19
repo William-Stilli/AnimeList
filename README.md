@@ -44,43 +44,24 @@ Ce projet n'est pas un simple clone de MyAnimeList. C'est une version avec des f
 
 Tu veux lancer le projet chez toi ? Suis le guide :
 
-1.  **Cloner le dépôt :**
+## 🐳 Installation rapide avec Docker
+
+Pour garantir une installation fluide et éviter les conflits d'environnement, ce projet est entièrement conteneurisé. Assurez-vous d'avoir [Docker](https://www.docker.com/) installé sur votre machine avant de commencer.
+
+Exécutez les commandes suivantes dans votre terminal :
+
+**1. Récupérer le code source et entrer dans le répertoire :**
     ```bash
     git clone [https://github.com/William-Stilli/AnimeList.git](https://github.com/William-Stilli/AnimeList.git)
     cd AnimeList
-    ```
-
-2.  **Installer les dépendances :**
-    ```bash
-    composer install
-    npm install
-    ```
-
-3.  **Configurer l'environnement :**
-    Duplique le fichier `.env.example` et renomme-le en `.env`.
-    ```bash
     cp .env.example .env
-    php artisan key:generate
+    docker compose up -d --build
+    docker compose exec app php artisan key:generate
+    docker compose exec app php artisan migrate:fresh --seed
+    docker compose exec app chown -R www-data:www-data /var/www/database
     ```
 
-4.  **Préparer la Base de Données :**
-    C'est crucial pour que les badges fonctionnent !
-    *(Sur Linux/Mac)* :
-    ```bash
-    touch database/database.sqlite
-    php artisan migrate --seed
-    ```
-    *(Sur Windows, créez simplement un fichier vide nommé `database.sqlite` dans le dossier database)*
-
-5.  **Lancer le projet :**
-    Tu auras besoin de deux terminaux :
-    ```bash
-    # Terminal 1 (Laravel)
-    php artisan serve
-
-    # Terminal 2 (Vite/Vue)
-    npm run dev
-    ```
+    Déploiement terminé ! L'application est désormais accessible depuis votre navigateur à l'adresse suivante : http://localhost:8000
 
 ## Commandes Utiles
 
