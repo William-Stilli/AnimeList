@@ -40,7 +40,7 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('library');
 
-    Route::get('/my-animes', [AnimeController::class, 'index']);
+    Route::get('/my-animes', [AnimeController::class, 'index'])->name('animes.index');
 
     Route::get('/api/manual-ranking', [AnimeController::class, 'manualRanking']);
     Route::post('/api/reorder', [AnimeController::class, 'reorder']);
@@ -58,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/data', [DataController::class, 'show'])->name('settings.data');
     Route::get('settings/data/export', [DataController::class, 'export'])->name('settings.data.export');
     Route::post('settings/data/import', [DataController::class, 'import'])->name('settings.data.import');
+    Route::get('settings/data/exportOtherFormat', [DataController::class, 'exportOtherFormat'])->name('settings.data.exportOtherFormat');
 
     Route::post('/collections', [CollectionController::class, 'store'])->name('collections.store');
     Route::delete('/collections/{collection}', [CollectionController::class, 'destroy'])->name('collections.destroy');

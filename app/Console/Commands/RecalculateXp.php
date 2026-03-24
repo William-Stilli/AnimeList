@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 
+use function Laravel\Prompts\error;
+
 class RecalculateXp extends Command
 {
     /**
@@ -71,9 +73,14 @@ class RecalculateXp extends Command
 
         if ($userId && $users->isNotEmpty()) {
             $u = $users->first();
-            $u->load('badges');
-            $this->info("User [{$u->name}] : {$u->xp} XP.");
-            $this->info("Badges débloqués : " . $u->badges->pluck('name')->join(', '));
+
+            try {
+                $u->load('badges');
+                $this->info("User [{$u->name}] : {$u->xp} XP.");
+                $this->info("Badges débloqués : " . $u->badges->pluck('name')->join(', '));
+            } catch (\Exception $e) {
+                $this->error("Impossible d'afficher les badges : table ou relation introuvable.");
+            }
         }
     }
 }

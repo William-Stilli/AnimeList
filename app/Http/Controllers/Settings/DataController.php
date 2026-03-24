@@ -82,4 +82,36 @@ class DataController extends Controller
 
         return back()->with('success', count($json) . ' animés ont été importés avec succès.');
     }
+
+    public function exportOtherFormat(Request $request) {
+        $animes = $request->user()->animes()
+            ->select('animes.mal_id', 'animes.title', 'animes.image_url', 'animes.episodes')
+            ->get()
+            ->map(function ($anime) {
+                return [
+                    'mal_id' => $anime->mal_id,
+                    'title' => $anime->title,
+                    'image_url' => $anime->image_url,
+                    'total_episodes' => $anime->episodes,
+                    'status' => $anime->pivot->status,
+                    'score' => $anime->pivot->score,
+                    'progress' => $anime->pivot->progress,
+                    'review' => $anime->pivot->review,
+                    'rank' => $anime->pivot->rank,
+                    'updated_at' => $anime->pivot->updated_at,
+                ];
+            });
+        
+        return response()->streamDownload(function () use ($animes) {
+            $file = fopen('php://output', 'w');
+
+            fputcsv($file, array_keys($animes->first()));
+
+            foreach ($animes as $anime) {
+                fputcsv($file, $anime);
+            }
+
+            fclose($file);
+        }, 'anime-list-'. date('d-m-Y') . '.csv');
+    }
 }
