@@ -42,8 +42,8 @@ class BadgeSeeder extends Seeder
             ],
             [
                 'name' => 'Drama',
-                'icon' => 'droplet',
-                'color' => 'blue',
+                'icon' => 'heart-crack',
+                'color' => 'red',
                 'description' => 'A regardé 10 animés Drama.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
@@ -103,7 +103,7 @@ class BadgeSeeder extends Seeder
             ],
             [
                 'name' => 'Tension Maximale',
-                'icon' => 'alert-triangle',
+                'icon' => 'hourglass',
                 'color' => 'yellow',
                 'description' => 'A regardé 10 animés Suspense.',
                 'condition_type' => 'genre_count',
@@ -113,8 +113,8 @@ class BadgeSeeder extends Seeder
             ],
             [
                 'name' => 'Survivant de la Nuit',
-                'icon' => 'ghost',
-                'color' => 'slate',
+                'icon' => 'droplets',
+                'color' => 'red',
                 'description' => 'A regardé 5 animés Horror.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
@@ -194,7 +194,7 @@ class BadgeSeeder extends Seeder
             ],
             [
                 'name' => 'Seconde Chance',
-                'icon' => 'repeat',
+                'icon' => 'clover',
                 'color' => 'rose',
                 'description' => 'A regardé 5 animés Reincarnation. Un nouveau départ, sous les projecteurs.',
                 'condition_type' => 'genre_count',
@@ -357,7 +357,7 @@ class BadgeSeeder extends Seeder
             [
                 'name' => 'Yuri Enjoyer',
                 'description' => 'A regardé 10 animés Yuri (Girls Love)',
-                'icon' => 'venus',
+                'icon' => 'scissors',
                 'color' => 'rose',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
