@@ -68,7 +68,7 @@ it('imports animes correctly from a valid JSON file', function () {
 });
 
 it('fails to import and returns an error if the JSON is corrupted or invalid', function () {
-    $badContent = "Ceci n'est pas du JSON valide, c'est un piège !";
+    $badContent = "Ceci n'est pas du JSON valide !";
     $file = UploadedFile::fake()->createWithContent('bad_backup.json', $badContent)->mimeType('application/json');
 
     $this->post(route('settings.data.import'), [

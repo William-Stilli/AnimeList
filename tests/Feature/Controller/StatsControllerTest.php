@@ -53,14 +53,13 @@ it('aggregates status, score, and cleans franchises with complex regex', functio
             ->where('statusData.0.total', 4)
             ->where('statusData.1.status', 'watching')
             ->where('statusData.1.total', 1)
-         
+
             ->has('scoreData', 2)
             ->where('scoreData.0.score', 8)
             ->where('scoreData.0.total', 1)
             ->where('scoreData.1.score', 10)
             ->where('scoreData.1.total', 3) 
 
-            
             ->has('genreData', 1)        
             ->where('genreData.0.name', 'Romance')
             ->where('genreData.0.total', 1) 
