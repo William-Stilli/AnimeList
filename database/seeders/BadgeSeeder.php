@@ -18,6 +18,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Action']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Explorateur',
@@ -27,6 +28,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Adventure']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Maître du Rire',
@@ -36,6 +38,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Comedy']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Drama',
@@ -45,6 +48,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Drama']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Fantasy',
@@ -54,6 +58,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Fantasy']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Cœur Palpitant',
@@ -63,6 +68,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Romance']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Sci-Fi',
@@ -72,6 +78,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Sci-Fi']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Tranche de Vie',
@@ -81,6 +88,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Slice of Life']),
+                'xp_bonus' => 100
             ],
 
             [
@@ -91,6 +99,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Mystery']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Tension Maximale',
@@ -100,6 +109,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Suspense']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Survivant de la Nuit',
@@ -109,6 +119,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Horror']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Supernaturel',
@@ -118,6 +129,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Supernatural']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Mind Game',
@@ -127,6 +139,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Psychological']),
+                'xp_bonus' => 100
             ],
 
             [
@@ -137,6 +150,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Mecha']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Isekai',
@@ -146,6 +160,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Isekai']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Beater',
@@ -155,6 +170,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Video Game']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Cavalier du Temps',
@@ -164,6 +180,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Time Travel']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Commandant Stratégique',
@@ -173,6 +190,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Military']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Seconde Chance',
@@ -182,6 +200,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Reincarnation']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Magie',
@@ -191,6 +210,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Super Power']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Shounen Protagonist',
@@ -200,6 +220,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Shounen']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Âme Sombre',
@@ -209,6 +230,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'Seinen']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Fleur de Cerisier',
@@ -218,6 +240,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Shoujo']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Héros Mythique',
@@ -227,6 +250,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Mythology']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Aimant à Problèmes',
@@ -236,6 +260,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Harem']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Bain de Sang',
@@ -245,6 +270,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Gore']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Délégué de Classe',
@@ -254,6 +280,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
                 'metadata' => json_encode(['genre_name' => 'School']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Culture de l\'Ombre',
@@ -263,6 +290,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Ecchi']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Gourmet 3 Étoiles',
@@ -272,6 +300,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Gourmet']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Athlète Virtuel',
@@ -281,6 +310,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Sports']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Mélomane',
@@ -290,6 +320,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
                 'metadata' => json_encode(['genre_name' => 'Music']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'Esprit Abstrait',
@@ -299,6 +330,7 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'genre_count',
                 'condition_value' => 3,
                 'metadata' => json_encode(['genre_name' => 'Avant Garde']),
+                'xp_bonus' => 100
             ],
             [
                 'name' => 'No-Life',
@@ -308,7 +340,8 @@ class BadgeSeeder extends Seeder
                 'color' => 'red',
                 'condition_type' => 'special',
                 'condition_value' => 60000,
-                'metadata' => json_encode(['type' => 'watch_time'])
+                'metadata' => json_encode(['type' => 'watch_time']),
+                'xp_bonus' => 1000
             ],
             [
                 'name' => 'No Game No Life',
@@ -318,8 +351,19 @@ class BadgeSeeder extends Seeder
                 'color' => 'purple',
                 'condition_type' => 'special',
                 'condition_value' => 60000,
-                'metadata' => json_encode(['type' => 'watch_time_easter_egg'])
+                'metadata' => json_encode(['type' => 'watch_time_easter_egg']),
+                'xp_bonus' => 100
             ],
+            [
+                'name' => 'Yuri Enjoyer',
+                'description' => 'A regardé 10 animés Yuri (Girls Love)',
+                'icon' => 'venus',
+                'color' => 'rose',
+                'condition_type' => 'genre_count',
+                'condition_value' => 10,
+                'metadata' => json_encode(['genre_name' => 'Girls Love']),
+                'xp_bonus' => 100
+            ]
         ];
 
         foreach ($genres as $badge) {
