@@ -26,7 +26,7 @@ class CollectionController extends Controller
         }
 
         $validated = $request->validate([
-            'user_id' => 'required|exists:animes,id'
+            'anime_id' => 'required|exists:animes,id'
         ]);
 
         $collection->animes()->toggle($validated['anime_id']);

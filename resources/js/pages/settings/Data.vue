@@ -99,7 +99,7 @@ const handleExportOtherFormat = () => {
                     </form>
                 </div>
 
-                <div
+                <!-- <div
                     class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <div>
@@ -118,7 +118,7 @@ const handleExportOtherFormat = () => {
                             Exporter (autres formats)
                         </Button>
                     </div>
-                </div>
+                </div> -->
 
             </div>
         </Layout>
