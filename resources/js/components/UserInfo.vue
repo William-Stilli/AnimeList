@@ -16,7 +16,7 @@ const { getInitials } = useInitials();
 
         <Avatar class="h-8 w-8 rounded-lg">
             <AvatarImage :src="user.profile_photo_url || ''" :alt="user.name" />
-            <AvatarFallback class="rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+            <AvatarFallback class="rounded-lg bg-sidebar-primary text-sidebar-primary-foreground text-black">
                 {{ getInitials(user.name) }}
             </AvatarFallback>
         </Avatar>
