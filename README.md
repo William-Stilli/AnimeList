@@ -45,7 +45,7 @@ Vous voulez lancer le projet chez vous ? Suivez le guide :
 
 Pour garantir une installation fluide et éviter les conflits d'environnement, ce projet est entièrement conteneurisé. Assurez-vous d'avoir [Docker](https://www.docker.com/) installé sur votre machine avant de commencer.
 
-Exécutez les commandes suivantes dans votre terminal :
+Exécutez les commandes suivantes dans votre terminal Powershell:
 
 **1. Récupérer le code source et entrer dans le répertoire :**
 ```bash
