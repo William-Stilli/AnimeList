@@ -7,49 +7,38 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
 Artisan::command('anime:fill-the-void', function () {
-    $this->info("Recherche des dossiers incomplets (Saison, Année ou Durée manquante)...");
+    $this->info("Inspection minutieuse de la bibliothèque en cours...");
 
-    $animes = Anime::whereNull('season')
-        ->orWhereNull('year')
-        ->orWhereNull('duration')
+    $animes = Anime::whereNull('duration')
         ->orWhere('duration', 0)
+        ->orDoesntHave('genres')
         ->get();
 
     $count = $animes->count();
 
     if ($count === 0) {
-        $this->info("Incroyable ! Ta bibliothèque est déjà complète");
+        $this->info("Incroyable ! Ta bibliothèque est absolument parfaite et complète.");
         return;
     }
 
-    $this->info("{$count} animés vont être mis à jour. Lancement des jobs...");
+    $this->warn("Attention : {$count} animés vont être mis à jour en mode SYNCHRONE.");
+    $this->info("Pour ne pas froisser l'API Jikan, on va y aller doucement (1 requête / seconde).");
+    $this->info("ça va prendre environ " . round($count / 60, 1) . " minutes.");
+    $this->newLine();
 
     $bar = $this->output->createProgressBar($count);
     $bar->start();
 
     foreach ($animes as $anime) {
-        FetchAnimeData::dispatch($anime);
+        FetchAnimeData::dispatchSync($anime);
+        
+        sleep(1); 
+        
         $bar->advance();
     }
 
     $bar->finish();
     $this->newLine(2);
-    $this->info("Tous les ordres de mission ont été transmis !");
-    $this->comment("Lance 'php artisan queue:work' pour traiter les données en arrière-plan.");
-})->purpose('Remplit les colonnes null pour toute la bibliothèque (Saisons, Années, Durées)');
-
-// Artisan::command('badges:reset-all', function () {
-//     $this->info("Suppression de tous les badges attribués...");
-
-//     DB::table('badge_user')->truncate();
-
-//     $users = User::all();
-//     $this->info("Recalcul pour {$users->count()} utilisateurs...");
-
-//     foreach ($users as $user) {
-//         $user->checkAchievements();
-//         $this->info("Badges synchronisés pour : {$user->name}");
-//     }
-
-//     $this->info("Reset terminé. Les badges sont maintenant 100% personnels !");
-// });
+    $this->info("Opération terminée ! Aucun animé n'est passé à la trappe.");
+    
+})->purpose('Remplit les trous en mode synchrone et sécurisé (sans surcharger Jikan)');
