@@ -13,7 +13,7 @@ This application was built strictly for my own personal use. As it is a personal
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Inertia](https://img.shields.io/badge/Inertia-9553E9?style=for-the-badge&logo=inertia&logoColor=white)
 
-> Une application web moderne pour suivre ta progression d'animés et gérer ta bibliothèque. Plus qu'une simple liste, c'est une expérience gamifiée pour les vrais passionnés.
+> Une application web moderne pour suivre votre progression d'animés et gérer votre bibliothèque. Plus qu'une simple liste, c'est une expérience gamifiée pour les vrais passionnés.
 
 ## Fonctionnalités Principales
 
@@ -21,16 +21,14 @@ Ce projet n'est pas un simple clone de MyAnimeList. C'est une version avec des f
 
 -   **Recherche Intelligente :** Intégration complète de l'API **Jikan (MyAnimeList)** pour trouver n'importe quel animé.
 -   **Gestion de Couvertures Personnalisée :**
-    -   L'image par défaut ne te plaît pas ? Change-la !
-    -   Choisis parmi la **galerie officielle**.
-    -   Système robuste qui garde tes préférences même après un refresh.
+    -   L'image par défaut ne vous plaît pas ? Changez-la !
+    -   Choisissez parmi la **galerie officielle**.
+    -   Système robuste qui garde vos préférences même après un refresh.
 -   **Gamification Avancée :**
-    -   Gagne de l'**XP** à chaque épisode regardé.
-    -   Monte de niveau.
-    -   Débloque des **Badges** (Romance Lover, No-Life...).
--   **Easter Eggs Cachés :**
-    -   Le système analyse ce que tu regardes. Certaines conditions débloquent des badges secrets et uniques.
--   **Dashboard Statistiques :** Suis ton temps de visionnage total (jours/heures) et ta répartition par genres.
+    -   Gagnez de l'**XP** à chaque épisode regardé.
+    -   Montez de niveau.
+    -   Débloquez des **Badges** (Action, Drama, No-Life...).
+-   **Dashboard Statistiques :** Suivez votre temps de visionnage total (jours/heures) et votre répartition par genres.
 
 ## Stack Technique
 
@@ -38,46 +36,54 @@ Ce projet n'est pas un simple clone de MyAnimeList. C'est une version avec des f
 -   **Frontend :** Vue 3 (Composition API) + Inertia.js
 -   **Base de données :** SQLite
 -   **Styling :** Tailwind CSS + Shadcn/UI components
--   **Qualité Code :** ESLint, Prettier, TypeScript
+-   **Test unitaire:** Pest
 
-## Installation & Démarrage
 
-Tu veux lancer le projet chez toi ? Suis le guide :
+## Installation rapide avec Docker
 
-## 🐳 Installation rapide avec Docker
+Vous voulez lancer le projet chez vous ? Suivez le guide :
 
 Pour garantir une installation fluide et éviter les conflits d'environnement, ce projet est entièrement conteneurisé. Assurez-vous d'avoir [Docker](https://www.docker.com/) installé sur votre machine avant de commencer.
 
 Exécutez les commandes suivantes dans votre terminal :
 
 **1. Récupérer le code source et entrer dans le répertoire :**
-    ```bash
-    
-    git clone [https://github.com/William-Stilli/AnimeList.git](https://github.com/William-Stilli/AnimeList.git)
-    
+```bash
+    git clone https://github.com/William-Stilli/AnimeList.git
     cd AnimeList
-    
+```
+
+**2. Préparer les variables d'environnement :**
+```bash
     cp .env.example .env
-    
+```
+
+**3. Lancer les conteneurs et initialiser l'application :**
+```bash
     docker compose up -d --build
-    
+
     docker compose exec app php artisan key:generate
-    
+
     docker compose exec app php artisan migrate:fresh --seed
-    
+
     docker compose exec app chown -R www-data:www-data /var/www/database
-    ```
+```
+
 Déploiement terminé ! L'application est désormais accessible depuis votre navigateur à l'adresse suivante : http://localhost:8000
 
 ## Commandes Utiles
 
--   **Recalculer tous les badges :** Si tu as modifié les règles ou ajouté des animés manuellement en BDD.
+-   **Recalculer tous les badges :** Si vous avez modifié les règles ou ajouté des animés manuellement en BDD.
     ```bash
-    php artisan badges:reset-all
+    docker compose exec app php artisan badges:reset-all
     ```
--   **Reset complet (Attention, efface tout !) :**
+-   **Recalculer l'XP après un export :** Si vous exporter votre liste vous devez lacer la commande suivante pour avoir votre XP mis à jour
     ```bash
-    php artisan migrate:fresh --seed
+    docker compose exec app app:recalculate-xp
+    ```
+-   **Reset complet (Attention, ça efface tout !) :**
+    ```bash
+    docker compose exec app php artisan migrate:fresh --seed
     ```
 
 ## Auteur
@@ -88,4 +94,4 @@ Déploiement terminé ! L'application est désormais accessible depuis votre nav
 
 ## 📄 Licence
 
-Ce projet est sous licence [MIT](https://opensource.org/licenses/MIT). Fais-en ce que tu veux, amuse-toi !
+Ce projet est sous licence [MIT](https://opensource.org/licenses/MIT). Faites-en ce que vous voulez, amusez-vous !
