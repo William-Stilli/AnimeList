@@ -38,18 +38,18 @@ Artisan::command('anime:fill-the-void', function () {
     $this->comment("Lance 'php artisan queue:work' pour traiter les données en arrière-plan.");
 })->purpose('Remplit les colonnes null pour toute la bibliothèque (Saisons, Années, Durées)');
 
-Artisan::command('badges:reset-all', function () {
-    $this->info("Suppression de tous les badges attribués...");
+// Artisan::command('badges:reset-all', function () {
+//     $this->info("Suppression de tous les badges attribués...");
 
-    DB::table('badge_user')->truncate();
+//     DB::table('badge_user')->truncate();
 
-    $users = User::all();
-    $this->info("Recalcul pour {$users->count()} utilisateurs...");
+//     $users = User::all();
+//     $this->info("Recalcul pour {$users->count()} utilisateurs...");
 
-    foreach ($users as $user) {
-        $user->checkAchievements();
-        $this->info("Badges synchronisés pour : {$user->name}");
-    }
+//     foreach ($users as $user) {
+//         $user->checkAchievements();
+//         $this->info("Badges synchronisés pour : {$user->name}");
+//     }
 
-    $this->info("Reset terminé. Les badges sont maintenant 100% personnels !");
-});
+//     $this->info("Reset terminé. Les badges sont maintenant 100% personnels !");
+// });
