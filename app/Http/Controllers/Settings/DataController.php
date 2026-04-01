@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\Anime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -99,6 +100,8 @@ class DataController extends Controller
                 ]);
             }
         });
+
+        Artisan::call('badges:reset-all');
 
         return back()->with('success', count($json) . ' animés ont été importés avec succès.');
     }

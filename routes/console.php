@@ -18,7 +18,7 @@ Artisan::command('anime:fill-the-void', function () {
     $count = $animes->count();
 
     if ($count === 0) {
-        $this->info("Incroyable ! Ta bibliothèque est déjà complète, Sneaky Bastard.");
+        $this->info("Incroyable ! Ta bibliothèque est déjà complète");
         return;
     }
 
