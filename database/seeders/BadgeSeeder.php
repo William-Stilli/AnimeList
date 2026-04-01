@@ -333,6 +333,16 @@ class BadgeSeeder extends Seeder
                 'xp_bonus' => 100
             ],
             [
+                'name' => 'Yuri Enjoyer',
+                'description' => 'A regardé 10 animés Yuri (Girls Love)',
+                'icon' => 'scissors',
+                'color' => 'rose',
+                'condition_type' => 'genre_count',
+                'condition_value' => 10,
+                'metadata' => ['genre_name' => 'Girls Love'],
+                'xp_bonus' => 100
+            ],
+            [
                 'name' => 'No-Life',
                 'slug' => 'no-life',
                 'description' => 'A visionné plus de 1000 heures d\'animés.',
@@ -352,16 +362,6 @@ class BadgeSeeder extends Seeder
                 'condition_type' => 'special',
                 'condition_value' => 60000,
                 'metadata' => ['type' => 'watch_time_easter_egg'],
-                'xp_bonus' => 100
-            ],
-            [
-                'name' => 'Yuri Enjoyer',
-                'description' => 'A regardé 10 animés Yuri (Girls Love)',
-                'icon' => 'scissors',
-                'color' => 'rose',
-                'condition_type' => 'genre_count',
-                'condition_value' => 10,
-                'metadata' => ['genre_name' => 'Girls Love'],
                 'xp_bonus' => 100
             ]
         ];
