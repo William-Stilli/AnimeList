@@ -17,7 +17,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés d\'Action.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Action']),
+                'metadata' => ['genre_name' => 'Action'],
                 'xp_bonus' => 100
             ],
             [
@@ -27,7 +27,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés d\'Adventure. Le monde est vaste.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Adventure']),
+                'metadata' => ['genre_name' => 'Adventure'],
                 'xp_bonus' => 100
             ],
             [
@@ -37,7 +37,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Comedy. Aussi drôle que les plans de Kaguya-sama.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Comedy']),
+                'metadata' => ['genre_name' => 'Comedy'],
                 'xp_bonus' => 100
             ],
             [
@@ -47,7 +47,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Drama.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Drama']),
+                'metadata' => ['genre_name' => 'Drama'],
                 'xp_bonus' => 100
             ],
             [
@@ -57,7 +57,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Fantasy.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Fantasy']),
+                'metadata' => ['genre_name' => 'Fantasy'],
                 'xp_bonus' => 100
             ],
             [
@@ -67,7 +67,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Romance.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Romance']),
+                'metadata' => ['genre_name' => 'Romance'],
                 'xp_bonus' => 100
             ],
             [
@@ -77,7 +77,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Sci-Fi.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Sci-Fi']),
+                'metadata' => ['genre_name' => 'Sci-Fi'],
                 'xp_bonus' => 100
             ],
             [
@@ -87,7 +87,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Slice of Life.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Slice of Life']),
+                'metadata' => ['genre_name' => 'Slice of Life'],
                 'xp_bonus' => 100
             ],
 
@@ -98,7 +98,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Mystery.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Mystery']),
+                'metadata' => ['genre_name' => 'Mystery'],
                 'xp_bonus' => 100
             ],
             [
@@ -108,7 +108,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Suspense.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Suspense']),
+                'metadata' => ['genre_name' => 'Suspense'],
                 'xp_bonus' => 100
             ],
             [
@@ -118,7 +118,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Horror.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Horror']),
+                'metadata' => ['genre_name' => 'Horror'],
                 'xp_bonus' => 100
             ],
             [
@@ -128,7 +128,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Supernatural. Tu vois ce que les autres ignorent.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Supernatural']),
+                'metadata' => ['genre_name' => 'Supernatural'],
                 'xp_bonus' => 100
             ],
             [
@@ -138,7 +138,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Psychological.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Psychological']),
+                'metadata' => ['genre_name' => 'Psychological'],
                 'xp_bonus' => 100
             ],
 
@@ -149,7 +149,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Mecha.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Mecha']),
+                'metadata' => ['genre_name' => 'Mecha'],
                 'xp_bonus' => 100
             ],
             [
@@ -159,7 +159,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Isekai. Prêt pour ta nouvelle vie ?',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Isekai']),
+                'metadata' => ['genre_name' => 'Isekai'],
                 'xp_bonus' => 100
             ],
             [
@@ -169,7 +169,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Video Game.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Video Game']),
+                'metadata' => ['genre_name' => 'Video Game'],
                 'xp_bonus' => 100
             ],
             [
@@ -179,7 +179,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Time Travel.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Time Travel']),
+                'metadata' => ['genre_name' => 'Time Travel'],
                 'xp_bonus' => 100
             ],
             [
@@ -189,7 +189,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Military.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Military']),
+                'metadata' => ['genre_name' => 'Military'],
                 'xp_bonus' => 100
             ],
             [
@@ -199,7 +199,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Reincarnation. Un nouveau départ, sous les projecteurs.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Reincarnation']),
+                'metadata' => ['genre_name' => 'Reincarnation'],
                 'xp_bonus' => 100
             ],
             [
@@ -209,7 +209,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Super Power / Magic.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Super Power']),
+                'metadata' => ['genre_name' => 'Super Power'],
                 'xp_bonus' => 100
             ],
             [
@@ -219,7 +219,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Shounen.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Shounen']),
+                'metadata' => ['genre_name' => 'Shounen'],
                 'xp_bonus' => 100
             ],
             [
@@ -229,7 +229,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés Seinen.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Seinen']),
+                'metadata' => ['genre_name' => 'Seinen'],
                 'xp_bonus' => 100
             ],
             [
@@ -239,7 +239,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Shoujo.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Shoujo']),
+                'metadata' => ['genre_name' => 'Shoujo'],
                 'xp_bonus' => 100
             ],
             [
@@ -249,7 +249,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Mythology.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Mythology']),
+                'metadata' => ['genre_name' => 'Mythology'],
                 'xp_bonus' => 100
             ],
             [
@@ -259,7 +259,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Harem. Comment fais-tu pour toutes les attirer ?',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Harem']),
+                'metadata' => ['genre_name' => 'Harem'],
                 'xp_bonus' => 100
             ],
             [
@@ -269,7 +269,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Gore.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Gore']),
+                'metadata' => ['genre_name' => 'Gore'],
                 'xp_bonus' => 100
             ],
             [
@@ -279,7 +279,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 10 animés School.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'School']),
+                'metadata' => ['genre_name' => 'School'],
                 'xp_bonus' => 100
             ],
             [
@@ -289,7 +289,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Ecchi. Un vrai Sneaky Bastard.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Ecchi']),
+                'metadata' => ['genre_name' => 'Ecchi'],
                 'xp_bonus' => 100
             ],
             [
@@ -299,7 +299,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Gourmet.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Gourmet']),
+                'metadata' => ['genre_name' => 'Gourmet'],
                 'xp_bonus' => 100
             ],
             [
@@ -309,7 +309,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Sports.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Sports']),
+                'metadata' => ['genre_name' => 'Sports'],
                 'xp_bonus' => 100
             ],
             [
@@ -319,7 +319,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 5 animés Music.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 5,
-                'metadata' => json_encode(['genre_name' => 'Music']),
+                'metadata' => ['genre_name' => 'Music'],
                 'xp_bonus' => 100
             ],
             [
@@ -329,7 +329,7 @@ class BadgeSeeder extends Seeder
                 'description' => 'A regardé 3 animés Avant Garde.',
                 'condition_type' => 'genre_count',
                 'condition_value' => 3,
-                'metadata' => json_encode(['genre_name' => 'Avant Garde']),
+                'metadata' => ['genre_name' => 'Avant Garde'],
                 'xp_bonus' => 100
             ],
             [
@@ -340,7 +340,7 @@ class BadgeSeeder extends Seeder
                 'color' => 'red',
                 'condition_type' => 'special',
                 'condition_value' => 60000,
-                'metadata' => json_encode(['type' => 'watch_time']),
+                'metadata' => ['type' => 'watch_time'],
                 'xp_bonus' => 1000
             ],
             [
@@ -351,7 +351,7 @@ class BadgeSeeder extends Seeder
                 'color' => 'purple',
                 'condition_type' => 'special',
                 'condition_value' => 60000,
-                'metadata' => json_encode(['type' => 'watch_time_easter_egg']),
+                'metadata' => ['type' => 'watch_time_easter_egg'],
                 'xp_bonus' => 100
             ],
             [
@@ -361,7 +361,7 @@ class BadgeSeeder extends Seeder
                 'color' => 'rose',
                 'condition_type' => 'genre_count',
                 'condition_value' => 10,
-                'metadata' => json_encode(['genre_name' => 'Girls Love']),
+                'metadata' => ['genre_name' => 'Girls Love'],
                 'xp_bonus' => 100
             ]
         ];
