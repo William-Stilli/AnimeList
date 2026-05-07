@@ -9,6 +9,8 @@ class BadgeSeeder extends Seeder
 {
     public function run(): void
     {
+        Badge::unguard();
+        
         $genres = [
             [
                 'name' => 'Action',
@@ -374,3 +376,4 @@ class BadgeSeeder extends Seeder
         }
     }
 }
+
