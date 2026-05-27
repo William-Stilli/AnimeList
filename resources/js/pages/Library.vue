@@ -383,7 +383,7 @@ const deleteAnime = async () => {
                             </div>
                         </div>
 
-                        <div v-if="filteredAnimes.length > 0" ref="parent"
+                        <div v-if="filteredAnimes?.length > 0" ref="parent"
                             class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
 
                             <Link v-for="anime in filteredAnimes" :key="anime.id"
@@ -481,7 +481,7 @@ const deleteAnime = async () => {
                         Ajouter aux Playlists
                     </h4>
 
-                    <div v-if="props.collections.length === 0" class="text-sm text-gray-400">
+                    <div v-if="props.collections?.length === 0" class="text-sm text-gray-400">
                         Tu n'as pas encore créé de dossier.
                     </div>
 
@@ -523,7 +523,7 @@ const deleteAnime = async () => {
                             L'image sera réinitialisée à la sauvegarde.
                         </div>
 
-                        <div v-if="galleryImages.length > 0"
+                        <div v-if="galleryImages?.length > 0"
                             class="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
                             <div v-for="(img, index) in galleryImages" :key="index"
                                 class="relative group cursor-pointer" @click="selectCover(img.jpg.image_url)">
