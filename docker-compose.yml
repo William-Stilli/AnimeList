@@ -14,6 +14,7 @@ services:
       - DB_DATABASE=/var/www/database/database.sqlite 
     volumes:
       - stuanimelist_db:/var/www/database
+      - .:/var/www
 
   queue:
     build:
@@ -29,6 +30,7 @@ services:
       - DB_DATABASE=/var/www/database/database.sqlite 
     volumes:
       - stuanimelist_db:/var/www/database
+      - .:/var/www
 
 volumes:
   stuanimelist_db:
