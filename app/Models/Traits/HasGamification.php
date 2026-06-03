@@ -135,11 +135,17 @@ trait HasGamification
 
             if ($isEligible && !$hasBadge) {
                 $this->badges()->attach($badge->id, ['unlocked_at' => now()]);
+                
+                $this->gainXp($badge->xp_bonus);
+                
                 if (!app()->runningInConsole()) {
                     session()->push('success', "Nouveau Badge débloqué : {$badge->name} !");
                 }
             } elseif (!$isEligible && $hasBadge) {
                 $this->badges()->detach($badge->id);
+                
+                $this->decrement('xp', $badge->xp_bonus);
+                
                 if (!app()->runningInConsole()) {
                     session()->push('info', "Badge perdu : {$badge->name}");
                 }
@@ -152,6 +158,7 @@ trait HasGamification
         $badge = Badge::where('slug', $slug)->first();
         if ($badge && !$this->badges()->where('badge_id', $badge->id)->exists()) {
             $this->badges()->attach($badge->id);
+            $this->gainXp($badge->xp_bonus);
         }
     }
 
@@ -161,6 +168,7 @@ trait HasGamification
 
         if ($badge && $this->badges->contains($badge->id)) {
             $this->badges()->detach($badge->id);
+            $this->decrement('xp', $badge->xp_bonus);
 
             $currentErrors = session()->get('error', []);
             if (!is_array($currentErrors))

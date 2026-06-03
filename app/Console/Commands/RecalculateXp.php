@@ -54,7 +54,9 @@ class RecalculateXp extends Command
                 }
             }
 
-            $user->updateQuietly(['xp' => $totalXp]);
+            $badgeXp = $user->badges()->sum('xp_bonus');
+            
+            $user->updateQuietly(['xp' => $totalXp + $badgeXp]);
 
             if (method_exists($user, 'checkAchievements')) {
                 $this->info("\nVérification des badges pour {$user->name}...");
