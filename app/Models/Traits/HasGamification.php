@@ -136,7 +136,7 @@ trait HasGamification
             if ($isEligible && !$hasBadge) {
                 $this->badges()->attach($badge->id, ['unlocked_at' => now()]);
                 
-                $this->gainXp($badge->xp_bonus);
+                $this->gainXp($badge->xp_bonus); 
                 
                 if (!app()->runningInConsole()) {
                     session()->push('success', "Nouveau Badge débloqué : {$badge->name} !");
