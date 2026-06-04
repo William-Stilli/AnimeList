@@ -221,6 +221,31 @@ const resetCover = () => {
     toast.info("L'image sera réinitialisée à la sauvegarde.");
 };
 
+const toggleStu = () => {
+    if (!editingAnime.value) return;
+
+    const currentState = editingAnime.value.pivot.is_stu;
+    editingAnime.value.pivot.is_stu = !currentState;
+
+    router.post(`/animes/${editingAnime.value.mal_id}/stu`, {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+            const animeTitle = editingAnime.value.title_english || editingAnime.value.title;
+
+            if (editingAnime.value.pivot.is_stu) {
+                toast.success(animeTitle + " a été élu S.T.U. !");
+            } else {
+                toast.info(animeTitle + " a abdiqué de son trône.");
+            }
+
+            refreshLibrary();
+        },
+        onError: () => {
+            editingAnime.value.pivot.is_stu = currentState;
+        }
+    });
+};
+
 const saveChanges = async () => {
     if (!editingAnime.value) return;
 
@@ -567,6 +592,20 @@ const deleteAnime = async () => {
                             <input type="number" v-model="form.score" min="0" max="10"
                                 class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5">
                         </div>
+                    </div>
+
+                    <div class="pt-5 mt-4 border-t border-gray-100 flex justify-between items-center">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700">Élire comme meilleur anime</label>
+                        </div>
+                        <button type="button" @click="toggleStu"
+                            :class="editingAnime?.pivot?.is_stu
+                                ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/40 ring-2 ring-yellow-400 ring-offset-2 scale-105'
+                                : 'bg-white text-gray-500 border border-gray-200 hover:border-yellow-400 hover:text-yellow-600 hover:bg-yellow-50'"
+                            class="px-4 py-2 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-2">
+                            <Crown class="w-4 h-4" :class="editingAnime?.pivot?.is_stu ? 'animate-bounce' : ''" />
+                            {{ editingAnime?.pivot?.is_stu ? 'Abdiquer' : 'Élire S.T.U.' }}
+                        </button>
                     </div>
 
                     <div class="pt-4 border-t border-gray-100">
