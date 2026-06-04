@@ -67,6 +67,8 @@ Exécutez les commandes suivantes dans votre terminal Powershell:
     docker compose exec app php artisan migrate:fresh --seed
 
     docker compose exec app chown -R www-data:www-data /var/www/database
+
+    docker compose exec app php artisan db:seed --class=BadgeSeeder
 ```
 
 Déploiement terminé ! L'application est désormais accessible depuis votre navigateur à l'adresse suivante : http://localhost:8000

@@ -30,7 +30,7 @@ const sidebarNavItems: NavItem[] = [
         href: editAppearance(),
     },
     {
-        title: 'Données',
+        title: 'Data',
         href: route('settings.data'),
     },
 ];
