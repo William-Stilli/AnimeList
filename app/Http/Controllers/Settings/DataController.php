@@ -103,7 +103,13 @@ class DataController extends Controller
 
         Artisan::call('badges:reset-all');
 
-        return back()->with('success', count($json) . ' animés ont été importés avec succès.');
+        Artisan::call('app:process-import');
+
+        Artisan::call('app:recalculate-xp', [
+            'user_id' => Auth::id()
+        ]);
+
+        return back()->with('success', count($json) . ' animés ont été importés. Le traitement et le recalcul de l\'XP sont terminés !');
     }
 
     public function exportOtherFormat(Request $request) {

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ResetAllBadges extends Command
 {
@@ -29,9 +30,9 @@ class ResetAllBadges extends Command
     {
         $this->info("Suppression de tous les badges attribués...");
 
-        DB::statement('PRAGMA foreign_keys=OFF;');
+        Schema::disableForeignKeyConstraints();
         DB::table('badge_user')->truncate();
-        DB::statement('PRAGMA foreign_keys=ON;');
+        Schema::enableForeignKeyConstraints();
 
         $users = User::all();
 

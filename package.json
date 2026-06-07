@@ -11,8 +11,10 @@
         "lint": "eslint . --fix"
     },
     "devDependencies": {
+        "@esbuild/linux-x64": "^0.28.0",
         "@eslint/js": "^9.19.0",
         "@laravel/vite-plugin-wayfinder": "^0.1.3",
+        "@rollup/rollup-linux-x64-gnu": "^4.61.1",
         "@tailwindcss/vite": "^4.1.11",
         "@types/node": "^22.13.5",
         "@vitejs/plugin-vue": "^6.0.0",
