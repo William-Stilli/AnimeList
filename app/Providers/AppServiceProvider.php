@@ -27,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
+
         RateLimiter::for('jikan', function (object $job) {
             return Limit::perSecond(2);
         });
