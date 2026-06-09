@@ -9,6 +9,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/secret-badge-init', function () {
+    try {
+        Artisan::call('db:seed', ['--class' => 'BadgeSeeder', '--force' => true]);
+        Artisan::call('badges:reset-all');
+        Artisan::call('app:recalculate-xp');
+        
+        return "Opération réussie ! Les badges sont dans la base Aiven. Tu peux fermer cette page.";
+    } catch (\Exception $e) {
+        return "Alerte rouge : " . $e->getMessage();
+    }
+});
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
