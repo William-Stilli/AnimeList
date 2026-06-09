@@ -59,6 +59,7 @@ class FetchAnimeData implements ShouldQueue
                     if (preg_match('/(\d+)\s*min/', $durationStr, $mins)) {
                         $durationMinutes += (int) $mins[1]; 
                     }
+                }
                 if (preg_match('/(\d+)\s*min/', $durationStr, $mins)) {
                     if (isset($hours[1])) {
                         $durationMinutes += (int) $mins[1];
