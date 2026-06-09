@@ -36,20 +36,29 @@ class FetchAnimeData implements ShouldQueue
         Log::info("JOB DÉMARRÉ : Récupération pour l'ID " . $this->anime->mal_id);
 
         if ($this->anime->mal_id) {
+            // Un petit somme de 1 seconde pour éviter de se faire bannir par Jikan (Rate Limit)
+            sleep(1);
+
             $response = Http::withoutVerifying()->timeout(10)->get("https://api.jikan.moe/v4/anime/{$this->anime->mal_id}");
 
             if ($response->successful()) {
-                $data = $response->json()['data'];
+                $json = $response->json();
+                
+                if (isset($json['data'])) {
+                    $data = $json['data'];
 
-                $preferredTitle = $data['title_english'] ?? $data['title'];
+                    $preferredTitle = $data['title_english'] ?? $data['title'];
 
-                $durationStr = $data['duration'] ?? '';
-                $durationMinutes = 24;
+                    $durationStr = $data['duration'] ?? '';
+                    $durationMinutes = 24;
 
-                if (preg_match('/(\d+)\s*hr/', $durationStr, $hours)) {
-                    $durationMinutes = (int) $hours[1] * 60;
-                }
+                    if (preg_match('/(\d+)\s*hr/', $durationStr, $hours)) {
+                        $durationMinutes = (int) $hours[1] * 60;
+                    }
 
+                    if (preg_match('/(\d+)\s*min/', $durationStr, $mins)) {
+                        $durationMinutes += (int) $mins[1]; 
+                    }
                 if (preg_match('/(\d+)\s*min/', $durationStr, $mins)) {
                     if (isset($hours[1])) {
                         $durationMinutes += (int) $mins[1];
