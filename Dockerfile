@@ -1,38 +1,40 @@
-FROM php:8.3-fpm
+FROM node:20 AS frontend
 
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    sqlite3 \
-    libsqlite3-dev \
-    && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd
-
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
-
-WORKDIR /var/www
-
-COPY composer.json composer.lock ./
-COPY package.json package-lock.json ./
-
-RUN composer install --no-scripts --no-autoloader
+WORKDIR /app
+COPY package*.json ./
 RUN npm ci
 
 COPY . .
 
-RUN composer dump-autoload --optimize
 RUN npm run build
 
-RUN touch database/database.sqlite
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/database
 
-EXPOSE 8000
+FROM php:8.3-apache
 
-CMD php artisan serve --host=0.0.0.0 --port=8000
+WORKDIR /var/www/html
+
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    zip \
+    && docker-php-ext-install pdo pdo_mysql
+
+RUN a2enmod rewrite
+
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+COPY . .
+
+COPY --from=frontend /app/public/build ./public/build
+
+RUN composer install --no-dev --optimize-autoloader
+
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+EXPOSE 80
+
+CMD sh -c "php artisan migrate --force && apache2-foreground"

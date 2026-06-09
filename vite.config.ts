@@ -49,12 +49,13 @@ export default defineConfig({
     ],
     server: {
         host: '0.0.0.0',
+        port: 5173,
         cors: {
             origin: '*',
         },
         hmr: {
-            host: 'pc-bd12-08',
-            //            host: 'localhost',
+            //host: 'pc-bd12-08',
+            host: 'localhost',
         },
         watch: {
             usePolling: true,
