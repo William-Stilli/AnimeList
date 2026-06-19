@@ -25,7 +25,8 @@ Route::get('/secret-badge-init', function () {
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
     ]);
 })->name('home');
 
