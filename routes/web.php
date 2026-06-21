@@ -4,6 +4,7 @@ use App\Http\Controllers\AnimeController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Settings\DataController;
+use App\Http\Controllers\RewatchController;
 use App\Http\Controllers\StatsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +78,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/collections', [CollectionController::class, 'store'])->name('collections.store');
     Route::delete('/collections/{collection}', [CollectionController::class, 'destroy'])->name('collections.destroy');
     Route::post('/collections/{collection}/toggle', [CollectionController::class, 'toggleAnime'])->name('collections.toggle');
+
+    Route::post('/animes/{anime}/rewatches', [RewatchController::class, 'store'])->name('rewatches.store');
+    Route::delete('/rewatches/{rewatch}', [RewatchController::class, 'destroy'])->name('rewatches.destroy');
 });
 
 require __DIR__ . '/settings.php';

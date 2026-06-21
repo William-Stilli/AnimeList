@@ -33,4 +33,9 @@ class Anime extends Model
     {
         return $this->belongsToMany(Collection::class)->withTimestamps();
     }
+
+    public function rewatches()
+    {
+        return $this->hasMany(Rewatch::class)->where('user_id', auth()->id());
+    }
 }

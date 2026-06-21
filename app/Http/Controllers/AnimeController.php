@@ -119,7 +119,7 @@ class AnimeController extends Controller
                 'custom_image_path',
                 'pantheon_rank'
             ])
-            ->with(['genres', 'collections:id'])
+            ->with(['genres', 'collections:id', 'rewatches'])
             ->orderByPivot('is_stu', 'desc')
             ->orderByRaw('anime_user.pantheon_rank IS NULL ASC')
             ->orderByPivot('pantheon_rank', 'asc')

@@ -246,6 +246,53 @@ const toggleStu = () => {
     });
 };
 
+const isAddingRewatch = ref(false);
+const newRewatch = ref({
+    start_episode: 1,
+    end_episode: 1
+});
+
+const submitRewatch = async () => {
+    if (!editingAnime.value) return;
+    
+    try {
+        const response = await axios.post(`/animes/${editingAnime.value.id}/rewatches`, {
+            start_episode: newRewatch.value.start_episode,
+            end_episode: newRewatch.value.end_episode
+        });
+
+        if (!editingAnime.value.rewatches) {
+            editingAnime.value.rewatches = [];
+        }
+        editingAnime.value.rewatches.push(response.data.rewatch);
+
+        toast.success("Rewatch ajouté ! L'XP a été recalculé.");
+        isAddingRewatch.value = false;
+        newRewatch.value = { start_episode: 1, end_episode: 1 };
+        
+    } catch (error) {
+        toast.error("Erreur lors de l'ajout du rewatch");
+        console.error(error);
+    }
+};
+
+const deleteRewatch = async (rewatchId) => {
+    if (!confirm("Supprimer ce rewatch ? Tu vas perdre l'XP associé !")) return;
+    
+    try {
+        await axios.delete(`/rewatches/${rewatchId}`);
+        
+        editingAnime.value.rewatches = editingAnime.value.rewatches.filter(r => r.id !== rewatchId);
+        const index = animes.value.findIndex(a => a.id === editingAnime.value.id);
+        if (index !== -1) {
+            animes.value[index].rewatches = animes.value[index].rewatches.filter(r => r.id !== rewatchId);
+        }
+        toast.info("Rewatch supprimé.");
+    } catch (error) {
+        toast.error("Erreur lors de la suppression.");
+    }
+};
+
 const saveChanges = async () => {
     if (!editingAnime.value) return;
 
@@ -591,6 +638,56 @@ const deleteAnime = async () => {
                             <label class="block text-sm font-bold text-gray-700 mb-1">Note / 10</label>
                             <input type="number" v-model="form.score" min="0" max="10"
                                 class="w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5">
+                        </div>
+                    </div>
+
+                    <div class="pt-4 mt-4 border-t border-gray-100">
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="block text-sm font-bold text-gray-700">🔁 Historique de Rewatch</label>
+                            <button type="button" @click="isAddingRewatch = !isAddingRewatch" 
+                                    class="text-xs text-blue-600 font-bold hover:underline transition-all">
+                                {{ isAddingRewatch ? 'Annuler' : '+ Nouveau' }}
+                            </button>
+                        </div>
+
+                        <div v-if="isAddingRewatch" class="bg-red-50 border border-red-100 rounded-lg p-3 mb-4 shadow-inner">
+                            <div class="flex items-end gap-3">
+                                <div class="flex-1">
+                                    <label class="block text-xs font-bold text-red-800 mb-1">De l'Ep</label>
+                                    <input type="number" v-model="newRewatch.start_episode" min="1" :max="editingAnime?.episodes || null"
+       class="w-full rounded-md border-red-300 py-1.5 text-sm text-red-900 focus:ring-red-500 focus:border-red-500">
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-xs font-bold text-red-800 mb-1">À l'Ep</label>
+                                    <input type="number" v-model="newRewatch.end_episode" min="1" :max="editingAnime?.episodes || null"
+       class="w-full rounded-md border-red-300 py-1.5 text-sm text-red-900 focus:ring-red-500 focus:border-red-500">
+                                </div>
+                                <button type="button" @click="submitRewatch" 
+                                        class="bg-red-600 text-white px-4 py-1.5 rounded-md text-sm font-bold hover:bg-red-700 transition-colors shadow-md">
+                                    Valider
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-red-500/80 mt-2 font-medium italic">
+                                *Attention : Les épisodes validés rajouteront de l'XP !
+                            </p>
+                        </div>
+
+                        <div v-if="editingAnime?.rewatches?.length > 0" class="flex flex-col gap-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">
+                            <div v-for="rewatch in editingAnime.rewatches" :key="rewatch.id" 
+                                 class="flex justify-between items-center bg-gray-50 border border-gray-200 rounded-md px-3 py-2 hover:bg-red-50 transition-colors group">
+                                <span class="text-sm font-bold text-gray-700 group-hover:text-red-700 transition-colors">
+                                    <span v-if="rewatch.start_episode === rewatch.end_episode">Épisode {{ rewatch.start_episode }}</span>
+                                    <span v-else>Épisodes {{ rewatch.start_episode }} - {{ rewatch.end_episode }}</span>
+                                </span>
+                                <button type="button" @click="deleteRewatch(rewatch.id)" 
+                                        class="text-gray-400 hover:text-red-600 transition-colors" title="Supprimer ce rewatch">
+                                    <Trash2 class="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div v-else class="text-xs text-gray-400 italic bg-gray-50 rounded p-2 text-center border border-dashed border-gray-200">
+                            Aucun rewatch enregistré.
                         </div>
                     </div>
 
