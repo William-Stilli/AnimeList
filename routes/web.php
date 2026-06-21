@@ -24,6 +24,15 @@ Route::get('/secret-badge-init', function () {
     }
 });
 
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/super-secret-migrate-otaku-777', function () {
+    
+    Artisan::call('migrate', ['--force' => true]);
+    
+    return '<pre>' . Artisan::output() . '</pre>';
+});
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
