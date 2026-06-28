@@ -27,6 +27,7 @@ const { urlIsActive } = useActiveUrl();
                     as-child
                     :is-active="urlIsActive(item.href)"
                     :tooltip="item.title"
+                    :id="item.id"
                 >
                     <Link :href="item.href">
                         <component :is="item.icon" />
