@@ -7,6 +7,7 @@ use App\Models\Anime;
 use App\Jobs\FetchAnimeData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 class AnimeController extends Controller
 {
@@ -23,7 +24,7 @@ class AnimeController extends Controller
                 'genres'
             ]);
         } else {
-            $response = Http::withoutVerifying()->get("https://api.jikan.moe/v4/anime/{$id}");
+            $response = Http::withoutVerifying()->get("https://api.tenrai.org/v1/anime/{$id}");
 
             if ($response->failed()) {
                 abort(404);
@@ -395,31 +396,61 @@ class AnimeController extends Controller
         ]);
     }
 
-    public function search(Request $request)
+   public function search(Request $request)
     {
         $animes = [];
         $filters = $request->only(['search']);
+        $apiError = null;
 
         if ($request->filled('search')) {
-            $searchTerm = rawurlencode($request->input('search'));
+            $searchTerm = trim(strtolower($request->input('search')));
+            $cacheKey = 'jikan_search_' . md5($searchTerm);
 
-            $response = Http::withoutVerifying()
-                ->timeout(10)
-                ->get("https://api.jikan.moe/v4/anime?q={$searchTerm}&sfw=true&limit=24");
+            $animes = Cache::remember($cacheKey, 3600, function () use ($searchTerm, &$apiError) {
+                $response = Http::withHeaders([
+                    'User-Agent' => 'UltimateAnimeTracker/1.0 (Projet étudiant CFC)'
+                ])
+                ->withOptions([
+                    'curl' => [
+                        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4, 
+                    ]
+                ])
+                ->withoutVerifying()
+                ->timeout(15)
+                ->get("https://api.tenrai.org/v1/anime", [
+                    'q' => $searchTerm,
+                    'sfw' => 'true',
+                    'limit' => 24
+                ]);
 
-            if ($response->successful()) {
-                $animes = $response->json('data');
+                if ($response->successful()) {
+                    $data = $response->json('data') ?? [];
+                    return array_map(function ($anime) {
+                        $anime['title'] = $anime['title_english'] ?? $anime['title'];
+                        return $anime;
+                    }, $data);
+                }
 
-                $animes = array_map(function ($anime) {
-                    $anime['title'] = $anime['title_english'] ?? $anime['title'];
-                    return $anime;
-                }, $animes);
+                if ($response->status() === 429) {
+                    $apiError = "L'API Jikan est surchargée. Attendez quelques secondes.";
+                } elseif ($response->status() === 504 || $response->status() === 500) {
+                    $apiError = "Les serveurs de Jikan rament en ce moment (Code: " . $response->status() . "). Réessaie dans un instant.";
+                } else {
+                    $apiError = "L'API externe a renvoyé une erreur (Code: " . $response->status() . ").";
+                }
+
+                return []; 
+            });
+
+            if (empty($animes) || $apiError) {
+                Cache::forget($cacheKey);
             }
         }
 
         return Inertia::render('AnimeSearch', [
             'animes' => $animes,
-            'filters' => $filters
+            'filters' => $filters,
+            'apiError' => $apiError
         ]);
     }
 

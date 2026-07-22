@@ -39,7 +39,7 @@ describe('FetchAnimeData Job : ', function () {
 
         // On simule un crash 500 de l'API externe
         Http::fake([
-            'api.jikan.moe/*' => Http::response([], 500)
+            'api.tenrai.org/*' => Http::response([], 500)
         ]);
 
         Log::shouldReceive('info')->once(); 
@@ -53,7 +53,7 @@ describe('FetchAnimeData Job : ', function () {
         $anime = Anime::factory()->create(['mal_id' => 87654]);
 
         Http::fake([
-            'api.jikan.moe/*' => Http::response([
+            'api.tenrai.org/*' => Http::response([
                 'data' => [
                     'title' => 'My Dress-Up Darling',
                     'title_english' => 'My Dress-Up Darling',
@@ -102,7 +102,7 @@ describe('FetchAnimeData Job : ', function () {
         $anime = Anime::factory()->create(['mal_id' => 11111]);
 
         Http::fake([
-            'api.jikan.moe/*' => Http::response([
+            'api.tenrai.org/*' => Http::response([
                 'data' => [
                     'title' => 'Fate/Zero',
                     'duration' => '24 min', 

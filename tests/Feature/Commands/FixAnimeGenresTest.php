@@ -17,7 +17,7 @@ describe("FixAnimeGenres : ", function () {
         expect($anime->genres)->toHaveCount(0);
     
         Http::fake([
-            'api.jikan.moe/*' => Http::response([
+            'api.tenrai.org/*' => Http::response([
                 'data' => [
                     'genres' => [
                         ['mal_id' => 1, 'name' => 'Romance'],

@@ -37,7 +37,7 @@ const fetchRecommendations = async () => {
     loadingRecommendations.value = true;
 
     try {
-        const response = await axios.get(`https://api.jikan.moe/v4/anime/${props.anime.mal_id}/recommendations`);
+        const response = await axios.get(`https://api.tenrai.org/v1/anime/${props.anime.mal_id}/recommendations`);
         recommendations.value = response.data.data.slice(0, 12);
     } catch (error) {
         console.error("Erreur lors du chargement des recommandations", error);
@@ -111,7 +111,7 @@ watch(() => props.anime, (newAnime) => {
 onMounted(async () => {
     if (props.anime.mal_id) {
         try {
-            const response = await axios.get(`https://api.jikan.moe/v4/anime/${props.anime.mal_id}`);
+            const response = await axios.get(`https://api.tenrai.org/v1/anime/${props.anime.mal_id}`);
             jikanData.value = response.data.data;
         } catch (error) {
             console.error("Erreur Jikan", error);

@@ -39,7 +39,7 @@ class FetchAnimeData implements ShouldQueue
             // Un petit somme de 1 seconde pour éviter de se faire bannir par Jikan (Rate Limit)
             sleep(1);
 
-            $response = Http::withoutVerifying()->timeout(10)->get("https://api.jikan.moe/v4/anime/{$this->anime->mal_id}");
+            $response = Http::withoutVerifying()->timeout(10)->get("https://api.tenrai.org/v1/anime/{$this->anime->mal_id}");
 
             if ($response->successful()) {
                 $json = $response->json();

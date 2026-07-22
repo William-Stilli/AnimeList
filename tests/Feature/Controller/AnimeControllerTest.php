@@ -39,7 +39,7 @@ describe("AnimeController : ", function () {
 
     it('fetch Jikan API and show details if anime is not in DB', function () {
         Http::fake([
-            'https://api.jikan.moe/v4/anime/48736' => Http::response([
+            'https://api.tenrai.org/v1/anime/48736' => Http::response([
                 'data' => [
                     'mal_id' => 48736,
                     'title' => 'My Dress-Up Darling',
@@ -179,7 +179,7 @@ describe("AnimeController : ", function () {
 
     it('aborts with 404 if anime is not found in database and Jikan API fails', function () {
         Http::fake([
-            'https://api.jikan.moe/v4/anime/*' => Http::response(null, 404)
+            'https://api.tenrai.org/v1/anime/*' => Http::response(null, 404)
         ]);
 
         $this->get(route('animes.show', 999999))
@@ -273,7 +273,7 @@ describe("AnimeController : ", function () {
 
     it('searches for animes using Jikan API and returns results', function () {
         Http::fake([
-            'https://api.jikan.moe/v4/anime*' => Http::response([
+            'https://api.tenrai.org/v1/anime*' => Http::response([
                 'data' => [
                     ['mal_id' => 11757, 'title' => 'Sword Art Online']
                 ]
@@ -383,7 +383,7 @@ describe("AnimeController : ", function () {
 
     it('builds a temporary anime with all array keys from Jikan API when not in database', function () {
         Http::fake([
-            'https://api.jikan.moe/v4/anime/88888' => Http::response([
+            'https://api.tenrai.org/v1/anime/88888' => Http::response([
                 'data' => [
                     'mal_id' => 88888,
                     'title' => 'Test Anime',
@@ -437,7 +437,7 @@ describe("AnimeController : ", function () {
 
     it('parses hours and minutes perfectly from Jikan API duration string', function () {
         Http::fake([
-            'https://api.jikan.moe/v4/anime/55555' => Http::response([
+            'https://api.tenrai.org/v1/anime/55555' => Http::response([
                 'data' => [
                     'mal_id' => 55555,
                     'title' => 'Long Movie',

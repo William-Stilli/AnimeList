@@ -8,6 +8,7 @@ import { useToast } from 'vue-toastification';
 const props = defineProps({
     animes: Array,
     filters: Object,
+    apiError: String,
 });
 
 const toast = useToast();
@@ -134,9 +135,14 @@ const searchTag = (tag) => {
                     </div>
                 </div>
 
-                <div v-else-if="query && !isSearching" class="text-center py-24">
-                    <h3 class="text-xl font-bold text-gray-900">Aucun résultat</h3>
-                </div>
+                <div v-else-if="apiError" class="text-center py-24">
+    <h3 class="text-xl font-bold text-red-500">⚠️ Oups !</h3>
+    <p class="text-gray-500 mt-2">{{ apiError }}</p>
+</div>
+<div v-else-if="query && !isSearching" class="text-center py-24">
+    <h3 class="text-xl font-bold text-gray-900">Aucun résultat</h3>
+    <p class="text-gray-500 mt-2">Vérifie l'orthographe du titre.</p>
+</div>
                 <div v-else-if="!query"
                     class="flex flex-col items-center justify-center py-20 opacity-40 select-none pointer-events-none">
                     <SearchIcon class="w-32 h-32 text-gray-300 mb-4" />

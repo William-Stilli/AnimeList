@@ -194,7 +194,7 @@ const openEditModal = async (anime) => {
     }
 
     try {
-        const url = `https://api.jikan.moe/v4/anime/${anime.mal_id}/pictures`;
+        const url = `https://api.tenrai.org/v1/anime/${anime.mal_id}/pictures`;
         const response = await axios.get(url);
         galleryImages.value = response.data.data;
     } catch (error) {

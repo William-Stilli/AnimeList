@@ -39,7 +39,7 @@ class FixAnimeGenres extends Command
             try {
                 usleep(500000);
 
-                $response = Http::withoutVerifying()->timeout(10)->get("https://api.jikan.moe/v4/anime/{$anime->mal_id}");
+                $response = Http::withoutVerifying()->timeout(10)->get("https://api.tenrai.org/v1/anime/{$anime->mal_id}");
 
                 if ($response->successful()) {
                     $data = $response->json()['data'];
