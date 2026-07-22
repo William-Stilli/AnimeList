@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\MangaController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -69,6 +70,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/animes/{anime}/rewatches', [RewatchController::class, 'store'])->name('rewatches.store');
     Route::delete('/rewatches/{rewatch}', [RewatchController::class, 'destroy'])->name('rewatches.destroy');
+
+    Route::get('/mangas/search', [MangaController::class, 'search'])->name('mangas.search');
+    Route::post('/mangas', [MangaController::class, 'store'])->name('mangas.store');
+    Route::get('/mangas/{id}', [MangaController::class, 'show'])->name('mangas.show');
 });
 
 require __DIR__ . '/settings.php';
