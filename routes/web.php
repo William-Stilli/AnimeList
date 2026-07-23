@@ -73,6 +73,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/mangas/search', [MangaController::class, 'search'])->name('mangas.search');
     Route::post('/mangas', [MangaController::class, 'store'])->name('mangas.store');
+    Route::get('/mangas/library', [MangaController::class, 'index'])->name('mangas.index');
+    
+    
+    
+    
+    
     Route::get('/mangas/{id}', [MangaController::class, 'show'])->name('mangas.show');
 });
 

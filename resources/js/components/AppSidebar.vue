@@ -68,6 +68,21 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
+const mangaNavItems: NavItem[] = [
+    {
+        title: 'Manga Library',
+        href: route('mangas.index'),
+        icon: Library,
+        id: 'tour-manga-library'
+    },
+    {
+        title: 'Manga Search',
+        href: route('mangas.search'),
+        icon: Search,
+        id: 'tour-manga-search'
+    }
+];
+
 const startTutorial = () => {
     const driverObj = driver({
         showProgress: true,
@@ -94,7 +109,7 @@ const startTutorial = () => {
             { 
                 element: '#tour-library', 
                 popover: { 
-                    title: 'Ta Collection', 
+                    title: 'Ta Collection Anime', 
                     description: 'Le cœur du système. Range tes visionnages, de Fate à Violet Evergarden, et gère ce que tu as vu, arrêté etc.', 
                     side: "right", align: 'start' 
                 } 
@@ -102,7 +117,7 @@ const startTutorial = () => {
             { 
                 element: '#tour-search', 
                 popover: { 
-                    title: 'Recherche', 
+                    title: 'Recherche Anime', 
                     description: 'Trouve facilement ton prochain anime préféré parmi des milliers de titres.', 
                     side: "right", align: 'start' 
                 } 
@@ -127,7 +142,23 @@ const startTutorial = () => {
                 element: '#tour-community', 
                 popover: { 
                     title: 'La Communauté', 
-                    description: 'Découvre les liste d\'autres utilisateurs', 
+                    description: 'Découvre les listes d\'autres utilisateurs', 
+                    side: "right", align: 'start' 
+                } 
+            },
+            { 
+                element: '#tour-manga-library', 
+                popover: { 
+                    title: 'Ta Bibliothèque Manga', 
+                    description: 'Gère ta collection de tomes physiques et garde une trace de tes chapitres lus.', 
+                    side: "right", align: 'start' 
+                } 
+            },
+            { 
+                element: '#tour-manga-search', 
+                popover: { 
+                    title: 'Recherche Manga', 
+                    description: 'Explore la base de données Tenrai pour trouver tes prochaines lectures.', 
                     side: "right", align: 'start' 
                 } 
             }
@@ -153,7 +184,15 @@ const startTutorial = () => {
         </SidebarHeader>
 
         <SidebarContent>
+            <div class="px-4 py-2 mt-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Anime
+            </div>
             <NavMain :items="mainNavItems" />
+
+            <div class="px-4 py-2 mt-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Manga
+            </div>
+            <NavMain :items="mangaNavItems" />
         </SidebarContent>
 
         <SidebarFooter>

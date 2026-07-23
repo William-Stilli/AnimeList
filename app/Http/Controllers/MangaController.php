@@ -9,6 +9,17 @@ use Inertia\Inertia;
 
 class MangaController extends Controller
 {
+    public function index()
+    {
+        $mangas = \App\Models\Manga::where('user_id', auth()->id())
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return Inertia::render('MangaLibrary', [
+            'mangas' => $mangas
+        ]);
+    }
+
     public function search(Request $request)
     {
         $mangas = [];
