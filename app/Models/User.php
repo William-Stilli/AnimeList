@@ -68,4 +68,11 @@ class User extends Authenticatable
     {
         return 'name';
     }
+
+ public function mangas()
+{
+    return $this->belongsToMany(\App\Models\Manga::class, 'manga_user')
+                ->withPivot(['status', 'chapters_read', 'volumes_owned', 'score', 'pantheon_rank', 'is_stu'])
+                ->withTimestamps();
+}
 }

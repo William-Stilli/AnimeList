@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('mangas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             
             $table->unsignedBigInteger('mal_id');
             $table->string('title');

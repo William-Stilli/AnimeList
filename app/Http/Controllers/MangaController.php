@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MangaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $mangas = \App\Models\Manga::where('user_id', auth()->id())
-            ->orderBy('updated_at', 'desc')
+        $mangas = $request->user()->mangas()
+            ->orderBy('manga_user.updated_at', 'desc')
             ->get();
 
         return Inertia::render('MangaLibrary', [
@@ -69,32 +71,45 @@ class MangaController extends Controller
         ]);
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'mal_id' => 'required|integer',
-            'title' => 'required|string|max:255',
-            'image_url' => 'nullable|url',
-        ]);
+   public function store(Request $request)
+{
+    $user = $request->user();
 
-        $exists = \App\Models\Manga::where('user_id', auth()->id())
-            ->where('mal_id', $validated['mal_id'])
-            ->exists();
+    $validated = $request->validate([
+        'mal_id' => 'required|integer',
+        'title' => 'required|string|max:255',
+        'image_url' => 'nullable|url',
+        'chapters' => 'nullable|integer',
+        'volumes' => 'nullable|integer',
+    ]);
 
-        if ($exists) {
-            return back()->withErrors(['message' => 'Ce manga est déjà dans ta bibliothèque.']);
-        }
-
-        \App\Models\Manga::create([
-            'user_id' => auth()->id(),
-            'mal_id' => $validated['mal_id'],
+    $manga = \App\Models\Manga::firstOrCreate(
+        ['mal_id' => $validated['mal_id']], 
+        [
             'title' => $validated['title'],
-            'image_url' => $validated['image_url'],
-            'status' => 'Plan to Read',
-        ]);
+            'image_url' => $validated['image_url'] ?? null,
+            'chapters' => $validated['chapters'] ?? null,
+            'volumes' => $validated['volumes'] ?? null,
+        ]
+    );
 
-        return back()->with('success', 'Manga ajouté à ta collection !');
+    $exists = $user->mangas()->where('mangas.id', $manga->id)->exists();
+
+    if ($exists) {
+        return back()->withErrors(['message' => 'Ce manga est déjà dans ta bibliothèque.']);
     }
+
+    $user->mangas()->syncWithoutDetaching([
+        $manga->id => [
+            'status' => 'Plan to Read',
+            'chapters_read' => 0,
+            'volumes_owned' => 0,
+            'score' => 0,
+        ]
+    ]);
+
+    return back()->with('success', 'Manga ajouté à ta collection !');
+}
 
     public function show($id)
     {
@@ -121,10 +136,10 @@ class MangaController extends Controller
             abort(404, 'Manga introuvable sur Tenrai.');
         }
 
-        $inLibrary = false;
+       $inLibrary = false;
         if (auth()->check()) {
-            $inLibrary = \App\Models\Manga::where('user_id', auth()->id())
-                ->where('mal_id', $id)
+            $inLibrary = auth()->user()->mangas()
+                ->where('mangas.mal_id', $id)
                 ->exists();
         }
 
@@ -133,4 +148,87 @@ class MangaController extends Controller
             'inLibrary' => $inLibrary
         ]);
     }
+
+    public function myMangas(Request $request)
+{
+    $mangas = $request->user()->mangas()->get();
+
+    return response()->json($mangas);
+}
+
+    public function update(Request $request, $id)
+    {
+        $user = $request->user();
+
+        $manga = $user->mangas()->findOrFail($id);
+
+        $validated = $request->validate([
+            'status' => 'required|string',
+            'chapters_read' => 'required|integer|min:0',
+            'volumes_owned' => 'required|integer|min:0',
+            'score' => 'required|integer|min:0|max:10',
+            'pantheon_rank' => 'nullable|integer|in:1,2,3',
+        ]);
+
+        $maxChapters = $manga->chapters;
+        $newChaptersRead = $validated['chapters_read'];
+        $newStatus = $validated['status'];
+
+        if ($maxChapters && $newChaptersRead > $maxChapters) {
+            return response()->json([
+                'message' => "Tu ne peux pas lire le chapitre {$newChaptersRead}, ce manga n'en possède que {$maxChapters} !"
+            ], 422);
+        }
+
+        if ($maxChapters && $newChaptersRead == $maxChapters) {
+            $newStatus = 'Completed';
+        }
+
+        if (!is_null($validated['pantheon_rank'])) {    
+            \Illuminate\Support\Facades\DB::table('manga_user')
+                ->where('user_id', $user->id)
+                ->where('pantheon_rank', $validated['pantheon_rank'])
+                ->where('manga_id', '!=', $id)
+                ->update(['pantheon_rank' => null]);
+        }
+
+        $user->mangas()->updateExistingPivot($id, [
+            'status' => $newStatus,
+            'chapters_read' => $newChaptersRead,
+            'volumes_owned' => $validated['volumes_owned'],
+            'score' => $validated['score'],
+            'pantheon_rank' => $validated['pantheon_rank'],
+        ]);
+
+        return response()->json(['message' => 'Mise à jour réussie']);
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->user();
+        $user->mangas()->detach($id);
+
+        return response()->json(['message' => 'Manga supprimé avec succès']);
+    }
+
+    public function toggleStu(Request $request, $mal_id)
+{
+    $user = $request->user();
+
+    $manga = $user->mangas()->where('mangas.mal_id', $mal_id)->firstOrFail();
+
+    $currentStatus = $manga->pivot->is_stu;
+
+    if (!$currentStatus) {
+        \Illuminate\Support\Facades\DB::table('manga_user')
+            ->where('user_id', $user->id)
+            ->update(['is_stu' => false]);
+        
+        $user->mangas()->updateExistingPivot($manga->id, ['is_stu' => true]);
+    } else {
+        $user->mangas()->updateExistingPivot($manga->id, ['is_stu' => false]);
+    }
+
+    return back();
+}
 }

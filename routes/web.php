@@ -74,7 +74,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/mangas/search', [MangaController::class, 'search'])->name('mangas.search');
     Route::post('/mangas', [MangaController::class, 'store'])->name('mangas.store');
     Route::get('/mangas/library', [MangaController::class, 'index'])->name('mangas.index');
-    
+    Route::get('/my-mangas', [MangaController::class, 'myMangas'])->name('mangas.my-list');
+    Route::put('/mangas/{id}', [MangaController::class, 'update'])->name('mangas.update');
+    Route::delete('/mangas/{id}', [MangaController::class, 'destroy'])->name('mangas.destroy');
+    Route::post('/mangas/{mal_id}/stu', [MangaController::class, 'toggleStu'])->name('mangas.stu');
     
     
     
