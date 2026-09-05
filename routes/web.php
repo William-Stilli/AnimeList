@@ -83,6 +83,8 @@ Route::middleware(['auth'])->group(function () {
     
     
     Route::get('/mangas/{id}', [MangaController::class, 'show'])->name('mangas.show');
+
+    Route::post('/animes/{id}/sync', [\App\Http\Controllers\AnimeController::class, 'sync'])->name('animes.sync');
 });
 
 require __DIR__ . '/settings.php';

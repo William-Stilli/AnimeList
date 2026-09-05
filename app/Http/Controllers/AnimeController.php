@@ -474,4 +474,26 @@ class AnimeController extends Controller
 
         return back()->with('success', "Parfait, {$anime->title} est maintenant ton S.T.U. !");
     }
+    public function sync(Request $request, $id)
+{
+    $anime = \App\Models\Anime::where('mal_id', $id)->firstOrFail();
+
+    $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+        ->timeout(15)
+        ->get("https://api.tenrai.org/v1/anime/{$id}");
+
+    if ($response->successful()) {
+        $data = $response->json('data');
+        
+        $anime->update([
+            'episodes' => $data['episodes'] ?? $anime->episodes,
+            'image_url' => $data['images']['jpg']['image_url'] ?? $anime->image_url,
+            'status' => $data['status'] ?? $anime->status,
+        ]);
+
+        return back()->with('success', 'Les données de l\'anime ont été synchronisées !');
+    }
+
+    return back()->withErrors(['message' => 'Impossible de joindre l\'API Tenrai pour la synchronisation.']);
+}
 }

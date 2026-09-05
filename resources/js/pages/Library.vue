@@ -293,6 +293,15 @@ const deleteRewatch = async (rewatchId) => {
     }
 };
 
+const syncAnime = (mal_id) => {
+    router.post(`/animes/${mal_id}/sync`, {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+            toast.success("Anime mis à jour !");
+        }
+    });
+};
+
 const saveChanges = async () => {
     if (!editingAnime.value) return;
 
@@ -542,11 +551,22 @@ const deleteAnime = async () => {
             <div
                 class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-gray-100 flex flex-col max-h-[90vh]">
 
-                <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
-                    <h3 class="font-bold text-lg text-gray-800 truncate pr-4">{{ editingAnime?.title }}</h3>
-                    <button @click="closeModal"
-                        class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
-                </div>
+<div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
+    <h3 class="font-bold text-lg text-gray-800 truncate pr-4">{{ editingAnime?.title }}</h3>
+    
+    <div class="flex items-center gap-4">
+        <button 
+            @click.prevent="syncAnime(editingAnime?.mal_id)" 
+            class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg shadow transition flex items-center gap-1 font-bold"
+        >
+           🔄 Actualiser les infos
+        </button>
+
+        <button @click="closeModal"
+            class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;
+        </button>
+    </div>
+</div>
 
                 <div class="mt-4 p-4 rounded-lg">
                     <h4 class="text-gray-200 font-bold mb-3 flex items-center gap-2">
